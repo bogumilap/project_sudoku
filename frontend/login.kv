@@ -1,0 +1,115 @@
+windowManager:
+	loginWindow:
+
+# login/signup window
+<loginWindow>:
+	nick : nick
+	email : email
+	pwd : pwd
+
+	email1 : email1
+	pwd1 : pwd1
+	FloatLayout:
+        canvas.before:
+            Color:
+                rgba: 1, 1, 1, 1
+            Rectangle:
+                pos: self.pos
+                size: self.size
+            BorderImage:
+                border: 0, 0, 0, 0
+                source: './sudoku-bg.jpg'
+                pos: self.pos
+                size: self.size
+                auto_scale : "off"
+
+		size: root.width, root.height
+		Label:
+			text : "EMAIL:"
+			color: "000000"
+			bold : True
+			size_hint : 0.2, 0.1
+			pos_hint : {"x" : 0, "top" : 0.75}
+		TextInput:
+			id : email1
+			multiline : False
+			size_hint : 0.27, 0.075
+			opacity: 0.7
+			pos_hint : {"x" : 0.18, "top" : 0.74}
+
+		Label:
+			text : "PASSWORD:"
+			color: "000000"
+			bold : True
+			size_hint : 0.2, 0.1
+			pos_hint : {"x" : 0, "top" : 0.63}
+		TextInput:
+			id : pwd1
+			multiline : False
+			size_hint : 0.27, 0.075
+			opacity: 0.7
+			pos_hint : {"x" : 0.18, "top" : 0.62}
+
+		Button:
+			text : "LOG IN"
+			size_hint : 0.4, 0.1
+			pos_hint : {"x" : 0.05, "top" : 0.37}
+			on_release:
+				root.validate()
+				root.manager.transition.direction = "up"
+
+		Label:
+            text : "NICK: "
+            color: "000000"
+            bold : True
+            size_hint : 0.2, 0.1
+            pos_hint : {"x" : 0.5, "top":0.75}
+        TextInput:
+            id : nick
+            multiline : False
+            size_hint : 0.27, 0.075
+            opacity: 0.7
+            pos_hint : {"x" : 0.67, "top" : 0.74}
+
+        Label:
+            text : "EMAIL: "
+            color: "000000"
+            bold : True
+            size_hint : 0.2, 0.1
+            pos_hint : {"x" : 0.5, "top" : 0.63}
+        TextInput:
+            id : email
+            multiline : False
+            size_hint : 0.27, 0.075
+            opacity: 0.7
+            pos_hint : {"x" : 0.67, "top" : 0.62}
+
+        Label:
+            text : "PASSWORD (6 chars): "
+            size_hint : 0.2, 0.1
+            color: "000000"
+            bold : True
+            pos_hint : {"x" : 0.5, "top" : 0.51}
+        TextInput:
+            id : pwd
+            multiline : False
+            size_hint : 0.27, 0.075
+            opacity: 0.7
+            pos_hint : {"x" : 0.67, "top" : 0.5}
+
+        Button:
+            text : "SIGN UP"
+            size_hint : 0.4, 0.1
+            pos_hint : {"x" : 0.55, "top" : 0.37}
+            on_press :
+                root.signupbtn()
+                root.manager.transition.direction = "right"
+
+
+# pop up window
+<P>:
+	Label:
+		text : "Please enter valid information"
+		size_hint : 0.2, 0.1
+		pos_hint : {"x" : 0.4, "top" : 0.8}
+		opacity: 0.5
