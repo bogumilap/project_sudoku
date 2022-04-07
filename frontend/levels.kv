@@ -1,0 +1,38 @@
+#windowManager:
+#	<levelsWindow>:
+
+<levelsWindow>:
+    canvas.before:
+        Color:
+            rgba: 1, 1, 1, 1
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+    Label:
+        text : "SELECT LEVEL:"
+        color: '111111'
+        bold : True
+        size_hint : 0.2, 0.1
+        pos_hint : {"x" : 0.3, "top" : 0.85}
+
+    Button:
+        text : "EASY"
+        size_hint : 0.4, 0.1
+        pos_hint : {"x" : 0.3, "top" : 0.75}
+        on_release:
+            root.manager.transition.direction = "up"
+
+    Button:
+        text : "MEDIUM"
+        size_hint : 0.4, 0.1
+        pos_hint : {"x" : 0.3, "top" : 0.60}
+        on_release:
+            root.manager.transition.direction = "up"
+
+    Button:
+        text : "HARD"
+        size_hint : 0.4, 0.1
+        pos_hint : {"x" : 0.3, "top" : 0.45}
+        on_release:
+            root.manager.transition.direction = "up"
