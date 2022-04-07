@@ -9,6 +9,8 @@ from kivy.uix.floatlayout import FloatLayout
 import kivy
 kivy.require('2.1.0')
 
+from frontend import levels
+
 
 # class to call the popup function
 class PopupWindow(Widget):
@@ -38,7 +40,7 @@ class loginWindow(Screen):
         if result == -1:
             popFun()
         else:
-            # sm.current = 'logdata'  <- to do: change screen to display game menu
+            App.get_running_app().root.current = "levelsWindow"
             self.email1.text = ""
             self.pwd1.text = ""
 
@@ -50,7 +52,7 @@ class loginWindow(Screen):
     def signupbtn(self):
         result = firebase_auth.signup(self.nick.text, self.email.text, self.pwd.text)
         if result != -1:
-            # sm.current = 'logdata'  <- to do: change screen to display game menu
+            # sm.current = 'levels_menu'
             self.nick.text = ""
             self.email.text = ""
             self.pwd.text = ""
@@ -69,6 +71,8 @@ sm = windowManager()
 
 # adding screens
 sm.add_widget(loginWindow(name='login'))
+sm.add_widget(levels.levelsWindow(name='levelsWindow'))
+
 
 
 class loginMain(App):
