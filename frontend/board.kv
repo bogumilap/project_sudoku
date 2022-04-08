@@ -1,0 +1,81 @@
+<BoardSmall>:
+    GridLayout:
+        cols:3
+        TextInput:
+            multiline: False
+        TextInput:
+            multiline: False
+        TextInput:
+            multiline: False
+        TextInput:
+            multiline: False
+        TextInput:
+            multiline: False
+        TextInput:
+            multiline: False
+        TextInput:
+            multiline: False
+        TextInput:
+            multiline: False
+        TextInput:
+            multiline: False
+
+<Button>
+    size_hint: 0.5, 0.5
+
+<TextField>
+    border: (10,10,10,10)
+
+<BoardGrid>
+    GridLayout:
+        cols:2
+        size: root.width, root.height
+
+        GridLayout:
+            cols:1
+            size_hint: 0.8, 1.0
+            Label:
+                size_hint: 0.8, 0.15
+                text: "Pasek postepu"
+
+            FloatLayout:
+                size_hint: 0.8, 0.85
+                BoxLayout:
+                    id: sudoku
+                    orientation: "vertical"
+
+
+
+
+        GridLayout:
+            cols: 1
+            size_hint: 0.2, 1.0
+
+            Label:
+                id: counter
+                text: "10"
+
+            Label:
+                text: "Hint"
+
+            GridLayout:
+                cols: 2
+
+                Button:
+                    text: "Get"
+
+                Button:
+                    text: "Count"
+
+            Button:
+                text: "Correct"
+
+            GridLayout:
+                cols:3
+                Button:
+                    text: "Restart"
+                Button:
+                    text: "Pause"
+
+                Button:
+                    text: "Exit"
