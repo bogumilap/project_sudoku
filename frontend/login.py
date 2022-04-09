@@ -52,7 +52,7 @@ class loginWindow(Screen):
     def signupbtn(self):
         result = firebase_auth.signup(self.nick.text, self.email.text, self.pwd.text)
         if result != -1:
-            # sm.current = 'levels_menu'
+            App.get_running_app().root.current = "levelsWindow"
             self.nick.text = ""
             self.email.text = ""
             self.pwd.text = ""
