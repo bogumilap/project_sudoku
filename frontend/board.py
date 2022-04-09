@@ -1,22 +1,25 @@
 import datetime
 import kivy
-from kivy.app import App
+from kivy.lang import Builder
 from kivy.uix.label import Label
 from kivy.uix.gridlayout import GridLayout
+from kivy.uix.screenmanager import Screen
 from kivy.uix.textinput import TextInput
 from kivy.clock import Clock
 import re
 
 kivy.require('2.1.0')
+kv = Builder.load_file('./board.kv')
+
 
 sudoku = [[1, 2, 3, 4, 5, 6, 7, 8, 9],   # example sudoku, needs changing to actual import from firebase
           [1, 2, 0, 4, 5, 6, 7, 8, 9],
+          [1, 2, 0, 4, 5, 6, 7, 8, 9],
           [1, 2, 3, 4, 5, 6, 7, 8, 9],
           [1, 2, 3, 4, 5, 6, 7, 8, 9],
-          [1, 2, 3, 4, 5, 6, 7, 8, 9],
-          [1, 2, 3, 4, 5, 6, 7, 8, 9],
-          [1, 2, 3, 4, 5, 6, 7, 8, 9],
-          [1, 2, 3, 4, 5, 6, 7, 8, 9],
+          [1, 2, 3, 4, 5, 0, 7, 8, 9],
+          [1, 2, 3, 4, 5, 6, 0, 8, 9],
+          [1, 2, 0, 4, 5, 6, 7, 8, 9],
           [1, 2, 3, 4, 5, 6, 7, 8, 9]]
 
 
@@ -28,8 +31,6 @@ class NumberInput(TextInput):   # custom text input to verify user input (only o
     def insert_text(self, substring, from_undo=False):
         self.text = ''
         pat = re.sub('[^0-9]$', '', substring)
-        if len(pat) > 1:
-            pat = pat[len(pat)-1]
         return super().insert_text(pat, from_undo=from_undo)
 
 
@@ -53,16 +54,9 @@ class BoardSudoku(GridLayout):  # whole sudoku board, made of 9 BoardSmall
         return self
 
 
-class BoardGrid(GridLayout):
-    pass
-
-
-class BoardApp(App):
+class GameWindow(Screen):
     def build(self):
-        return BoardGrid()
-
-    def on_start(self):
-        board = self.root.ids.sudoku
+        board = self.ids.sudoku
         s = BoardSudoku().create()
         board.add_widget(s)
 
@@ -75,15 +69,13 @@ class BoardApp(App):
         Clock.schedule_interval(self.update_label, 0.01)
 
     def update_label(self, dt):
-        # self.root.ids.counter.text = str(float(self.root.ids.counter.text) - 0.01)
+        # self.ids.counter.text = str(float(self.ids.counter.text) - 0.01)
         now = datetime.datetime.now()
-        self.root.ids.counter.text = now.strftime(self.modes[self.mode])
+        self.ids.counter.text = now.strftime(self.modes[self.mode])
         if self.mode == 2:
-            self.root.ids.counter.text += str(now.microsecond)[:3]
-
-    # return sudoku_layout
+            self.ids.counter.text += str(now.microsecond)[:3]
 
 
-if __name__ == "__main__":
-    BoardApp().run()
+
+
 

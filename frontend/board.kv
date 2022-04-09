@@ -10,10 +10,11 @@
 <NumberLabel>:
     canvas.before:
         Color:
-            rgba: 1, 1, 0
+            rgba: 1,1,1,1
         Rectangle:
-            pos: self.pos
             size: self.size
+            pos: self.pos
+    bold: True
 
 
 <NumberInput>:
@@ -22,67 +23,74 @@
     padding: 0, 15
 
 
+<NumberInput@TextInput>:
+    background_color: (1,1,1,0.8) if self.focus else (1,1,1,1)
+
+
 <BoardSudoku>:
     cols: 3
-    spacing: 1,1
+    spacing: 1, 1
     row_force_default: True
     row_default_height: 155
     col_force_default: True
     col_default_width: 155
-    padding: 40, 20
+    padding: 50, 20
 
 
 <Button>:
     size_hint: 0.5, 0.5
 
 
-<BoardGrid>:
-    cols:3
-    size: root.width, root.height
+<GameWindow>:
+    on_enter : self.build()
 
     GridLayout:
-        cols:1
-        size_hint: 0.8, 1.0
-        Label:
-            size_hint: 0.8, 0.15
-            text: "Pasek postepu"
-
-        FloatLayout:
-            size_hint: 0.8, 0.85
-            BoxLayout:
-                id: sudoku
-                orientation: "vertical"
-
-    GridLayout:
-        cols: 1
-        size_hint: 0.2, 1.0
-
-        Label:
-            id: counter
-            text: "10"
-
-        Label:
-            text: "Hint"
+        cols:3
+        size: root.width, root.height
 
         GridLayout:
-            cols: 2
+            cols:1
+            size_hint: 0.8, 1.0
+            Label:
+                size_hint: 0.8, 0.15
+                text: "Pasek postepu"
 
-            Button:
-                text: "Get"
-
-
-            Button:
-                text: "Count"
-
-        Button:
-            text: "Correct"
+            FloatLayout:
+                size_hint: 0.8, 0.85
+                BoxLayout:
+                    id: sudoku
+                    orientation: "vertical"
 
         GridLayout:
-            cols:3
-            Button:
-                text: "Restart"
-            Button:
-                text: "Pause"
+            cols: 1
+            size_hint: 0.2, 1.0
+
+            Label:
+                id: counter
+                text: "10"
+
+            Label:
+                text: "Hint"
+
+            GridLayout:
+                cols: 2
+
+                Button:
+                    text: "Get"
+
+
+                Button:
+                    text: "Count"
 
             Button:
-                text: "Exit"
+                text: "Correct"
+
+            GridLayout:
+                cols:3
+                Button:
+                    text: "Restart"
+                Button:
+                    text: "Pause"
+
+                Button:
+                    text: "Exit"
