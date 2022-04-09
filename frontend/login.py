@@ -9,7 +9,9 @@ from kivy.uix.floatlayout import FloatLayout
 import kivy
 kivy.require('2.1.0')
 
+import frontend
 from frontend import levels
+from frontend import board
 
 
 # class to call the popup function
@@ -70,9 +72,10 @@ kv = Builder.load_file('login.kv')
 sm = windowManager()
 
 # adding screens
+
 sm.add_widget(loginWindow(name='login'))
 sm.add_widget(levels.levelsWindow(name='levelsWindow'))
-
+sm.add_widget(board.GameWindow(name='GameWindow'))
 
 
 class loginMain(App):
