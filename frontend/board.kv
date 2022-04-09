@@ -1,81 +1,88 @@
 <BoardSmall>:
-    GridLayout:
-        cols:3
-        TextInput:
-            multiline: False
-        TextInput:
-            multiline: False
-        TextInput:
-            multiline: False
-        TextInput:
-            multiline: False
-        TextInput:
-            multiline: False
-        TextInput:
-            multiline: False
-        TextInput:
-            multiline: False
-        TextInput:
-            multiline: False
-        TextInput:
-            multiline: False
+    cols: 3
+    row_force_default: True
+    row_default_height: 50
+    col_force_default: True
+    col_default_width: 50
+    spacing: 1, 1
 
-<Button>
+
+<NumberLabel>:
+    canvas.before:
+        Color:
+            rgba: 1, 1, 0
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+
+<NumberInput>:
+    halign: "center"
+    multiline: False
+    padding: 0, 15
+
+
+<BoardSudoku>:
+    cols: 3
+    spacing: 1,1
+    row_force_default: True
+    row_default_height: 155
+    col_force_default: True
+    col_default_width: 155
+    padding: 40, 20
+
+
+<Button>:
     size_hint: 0.5, 0.5
 
-<TextField>
-    border: (10,10,10,10)
 
-<BoardGrid>
+<BoardGrid>:
+    cols:3
+    size: root.width, root.height
+
     GridLayout:
-        cols:2
-        size: root.width, root.height
+        cols:1
+        size_hint: 0.8, 1.0
+        Label:
+            size_hint: 0.8, 0.15
+            text: "Pasek postepu"
+
+        FloatLayout:
+            size_hint: 0.8, 0.85
+            BoxLayout:
+                id: sudoku
+                orientation: "vertical"
+
+    GridLayout:
+        cols: 1
+        size_hint: 0.2, 1.0
+
+        Label:
+            id: counter
+            text: "10"
+
+        Label:
+            text: "Hint"
 
         GridLayout:
-            cols:1
-            size_hint: 0.8, 1.0
-            Label:
-                size_hint: 0.8, 0.15
-                text: "Pasek postepu"
-
-            FloatLayout:
-                size_hint: 0.8, 0.85
-                BoxLayout:
-                    id: sudoku
-                    orientation: "vertical"
-
-
-
-
-        GridLayout:
-            cols: 1
-            size_hint: 0.2, 1.0
-
-            Label:
-                id: counter
-                text: "10"
-
-            Label:
-                text: "Hint"
-
-            GridLayout:
-                cols: 2
-
-                Button:
-                    text: "Get"
-
-                Button:
-                    text: "Count"
+            cols: 2
 
             Button:
-                text: "Correct"
+                text: "Get"
 
-            GridLayout:
-                cols:3
-                Button:
-                    text: "Restart"
-                Button:
-                    text: "Pause"
 
-                Button:
-                    text: "Exit"
+            Button:
+                text: "Count"
+
+        Button:
+            text: "Correct"
+
+        GridLayout:
+            cols:3
+            Button:
+                text: "Restart"
+            Button:
+                text: "Pause"
+
+            Button:
+                text: "Exit"
