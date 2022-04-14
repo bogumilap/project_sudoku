@@ -1,14 +1,4 @@
-import firebase_admin
-from firebase_admin import credentials
-from firebase_admin import db
-
-cred = credentials.Certificate("../firebase_connection/sudoku-ecca5-firebase-adminsdk-39oik-b57bb08c6c.json")
-firebase_admin.initialize_app(cred, {
-    'databaseURL': 'https://sudoku-ecca5-default-rtdb.europe-west1.firebasedatabase.app/'
-})
-
-ref = db.reference('/')
-
+from firebase_connection import firebase_ref
 
 def addUser(uid, nick, email):  # adding new user to 'users' collection in firebase
     data = {
@@ -18,7 +8,7 @@ def addUser(uid, nick, email):  # adding new user to 'users' collection in fireb
         'no_won': 0,
         'total_points': 0
     }
-    ref.child('users').child(str(uid)).set(data)
+    firebase_ref.getRef().child('users').child(str(uid)).set(data)
 
 
 # initializing ranking
@@ -55,5 +45,5 @@ top5 = {
     }
 }
 
-ref.child('top5').set(top5)
+firebase_ref.getRef().child('top5').set(top5)
 

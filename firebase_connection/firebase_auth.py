@@ -5,6 +5,7 @@ from firebase_connection import firebase_insert
 
 import pyrebase
 from requests import HTTPError
+from firebase_connection import firebase_ref
 
 firebaseConfig = {
     "apiKey": "AIzaSyBxMCsRr5oTMtonLTujyKYpxFrYeJkqHks",
@@ -19,20 +20,31 @@ firebaseConfig = {
 
 firebase = pyrebase.initialize_app(firebaseConfig)
 auth = firebase.auth()
-
+uid = None
 
 # log in to account
 def login(email_, password_):
+    global uid
     try:
-        login = auth.sign_in_with_email_and_password(email_, password_)
+        user = auth.sign_in_with_email_and_password(email_, password_)
+        uid = user.get('localId')
+        return user.get('localId')
     except HTTPError:
         return -1
 
 
 # sign up to database
 def signup(nick, email, password):
+    global uid
     try:
         user = auth.create_user_with_email_and_password(email, password)
         firebase_insert.addUser(user.get('localId'), nick, email)  # creating position in 'users' collection in db
+        firebase_ref.getRef().child('history').push(user.get('localId'))  # creating document for user's history of play
+        uid = user.get('localId')
+        return user.get('localId')
     except HTTPError:
         return -1
+
+
+def getUID():
+    return uid
