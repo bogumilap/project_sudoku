@@ -7,20 +7,16 @@ from kivy.uix.screenmanager import Screen
 from kivy.uix.textinput import TextInput
 from kivy.clock import Clock
 import re
+from firebase_connection import firebase_sudoku
+from firebase_connection import firebase_auth
 
 kivy.require('2.1.0')
 kv = Builder.load_file('./board.kv')
 
 
-sudoku = [[1, 2, 3, 4, 5, 6, 7, 8, 9],   # example sudoku, needs changing to actual import from firebase
-          [1, 2, 0, 4, 5, 6, 7, 8, 9],
-          [1, 2, 0, 4, 5, 6, 7, 8, 9],
-          [1, 2, 3, 4, 5, 6, 7, 8, 9],
-          [1, 2, 3, 4, 5, 6, 7, 8, 9],
-          [1, 2, 3, 4, 5, 0, 7, 8, 9],
-          [1, 2, 3, 4, 5, 6, 0, 8, 9],
-          [1, 2, 0, 4, 5, 6, 7, 8, 9],
-          [1, 2, 3, 4, 5, 6, 7, 8, 9]]
+sudoku_id = 0  # to be done
+sudoku = firebase_sudoku.getUnsolved(sudoku_id)
+user_sudoku = firebase_sudoku.getUserSolution(firebase_auth.getUID(), sudoku_id)
 
 
 class NumberLabel(Label):  # custom label for displaying numbers in sudoku
@@ -31,6 +27,7 @@ class NumberInput(TextInput):   # custom text input to verify user input (only o
     def insert_text(self, substring, from_undo=False):
         self.text = ''
         pat = re.sub('[^0-9]$', '', substring)
+        # firebase_sudoku.updateUserSolution()
         return super().insert_text(pat, from_undo=from_undo)
 
 
@@ -39,7 +36,11 @@ class BoardSmall(GridLayout):  # small square 3x3
         for i in range(3*row, 3*row+3):
             for j in range(3*col, 3*col+3):
                 if sudoku[i][j] == 0:
-                    self.add_widget(NumberInput())
+                    if user_sudoku[i][j] != 0:
+                        self.add_widget(NumberInput(text=str(user_sudoku[i][j])))
+                    else:
+                        self.add_widget(NumberInput())
+
                 else:
                     self.add_widget(NumberLabel(text=str(sudoku[i][j]), color=(0, 0, 0)))
         return self
@@ -56,6 +57,9 @@ class BoardSudoku(GridLayout):  # whole sudoku board, made of 9 BoardSmall
 
 class GameWindow(Screen):
     def build(self):
+        global user_sudoku
+        uid = firebase_auth.getUID()
+        user_sudoku = firebase_sudoku.getUserSolution(uid, sudoku_id)
         board = self.ids.sudoku
         s = BoardSudoku().create()
         board.add_widget(s)
