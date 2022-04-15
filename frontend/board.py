@@ -17,6 +17,31 @@ kv = Builder.load_file('./board.kv')
 sudoku_id = 0  # to be done
 sudoku = firebase_sudoku.getUnsolved(sudoku_id)
 user_sudoku = firebase_sudoku.getUserSolution(firebase_auth.getUID(), sudoku_id)
+input_map = {}  # map of NumberInput objects created in order to update firebase
+
+
+def checkDone():
+    global user_sudoku
+    user_sudoku = firebase_sudoku.getUserSolution(firebase_auth.getUID(), sudoku_id)
+    end = True
+    for i in range(9):
+        for j in range(9):
+            if sudoku[i][j] == 0 and (user_sudoku[i][j] == 0 or sudoku[i][j] == ""):
+                end = False
+    if end:
+        firebase_sudoku.finishGame(firebase_auth.getUID(), sudoku_id)
+
+
+def checkChanges(instance, value):
+    global user_sudoku
+    user_sudoku = firebase_sudoku.getUserSolution(firebase_auth.getUID(), sudoku_id)
+
+    for (i, j) in input_map.keys():
+        num = input_map.get((i, j))
+        if str(user_sudoku[i][j]) != num.text:
+            firebase_sudoku.updateUserSolution(firebase_auth.getUID(), sudoku_id, i, j, num.text)
+
+    checkDone()
 
 
 class NumberLabel(Label):  # custom label for displaying numbers in sudoku
@@ -26,8 +51,7 @@ class NumberLabel(Label):  # custom label for displaying numbers in sudoku
 class NumberInput(TextInput):   # custom text input to verify user input (only one digit)
     def insert_text(self, substring, from_undo=False):
         self.text = ''
-        pat = re.sub('[^0-9]$', '', substring)
-        # firebase_sudoku.updateUserSolution()
+        pat = re.sub('[^1-9]$', '', substring)
         return super().insert_text(pat, from_undo=from_undo)
 
 
@@ -36,10 +60,13 @@ class BoardSmall(GridLayout):  # small square 3x3
         for i in range(3*row, 3*row+3):
             for j in range(3*col, 3*col+3):
                 if sudoku[i][j] == 0:
+                    n_input = NumberInput()
                     if user_sudoku[i][j] != 0:
-                        self.add_widget(NumberInput(text=str(user_sudoku[i][j])))
-                    else:
-                        self.add_widget(NumberInput())
+                        n_input = NumberInput(text=str(user_sudoku[i][j]))
+
+                    input_map[(i, j)] = n_input
+                    self.add_widget(n_input)
+                    n_input.bind(text=checkChanges)
 
                 else:
                     self.add_widget(NumberLabel(text=str(sudoku[i][j]), color=(0, 0, 0)))
@@ -78,8 +105,4 @@ class GameWindow(Screen):
         self.ids.counter.text = now.strftime(self.modes[self.mode])
         if self.mode == 2:
             self.ids.counter.text += str(now.microsecond)[:3]
-
-
-
-
 
