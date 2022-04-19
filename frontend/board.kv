@@ -37,8 +37,18 @@
     padding: 50, 20
 
 
-<Button>:
-    size_hint: 0.5, 0.5
+<RoundedButton@Button>:
+    background_color: (0,0,0,0)
+    background_normal: ''
+    canvas.before:
+        Color:
+            rgba: (39/255,209/255,245/255,1)
+        RoundedRectangle:
+            size: self.size
+            pos: self.pos
+            radius: [10]
+
+
 
 
 <GameWindow>:
@@ -51,9 +61,19 @@
         GridLayout:
             cols:1
             size_hint: 0.8, 1.0
-            Label:
-                size_hint: 0.8, 0.15
-                text: "Pasek postepu"
+
+            ProgressBar:
+                id: my_progress_bar
+                value: .25
+                min: 0
+                max: 1
+                size_hint: 0.8, 0.1
+
+            Button:
+                size_hint: 0.8, 0.05
+                text: "Press me!"
+                on_press: root.press_it()
+
 
             FloatLayout:
                 size_hint: 0.8, 0.85
@@ -67,19 +87,33 @@
 
             Label:
                 id: counter
-                text: "10"
+                text: "5"
+                hour: 0
+                minute: 2
+                second: 2
+                markup: True
+                background_color: (0.3,0.3,0.3,1)
+                canvas.before:
+                    Color:
+                        rgba: self.background_color
+                    RoundedRectangle:
+                        size: self.size
+                        pos: self.pos
+                        radius: 100, 100, 100, 100
+
 
             Label:
-                text: "Hint"
+                text: "Hint: left 3/3"
 
             GridLayout:
                 cols: 2
 
-                Button:
+                RoundedButton:
                     text: "Get"
 
 
-                Button:
+
+                RoundedButton:
                     text: "Count"
 
             Button:
@@ -94,3 +128,5 @@
 
                 Button:
                     text: "Exit"
+
+

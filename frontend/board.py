@@ -61,7 +61,7 @@ class BoardSmall(GridLayout):  # small square 3x3
             for j in range(3*col, 3*col+3):
                 if sudoku[i][j] == 0:
                     n_input = NumberInput()
-                    if user_sudoku[i][j] != 0:
+                    if user_sudoku is not None and user_sudoku[i][j] != 0 :
                         n_input = NumberInput(text=str(user_sudoku[i][j]))
 
                     input_map[(i, j)] = n_input
@@ -83,26 +83,45 @@ class BoardSudoku(GridLayout):  # whole sudoku board, made of 9 BoardSmall
 
 
 class GameWindow(Screen):
+
     def build(self):
         global user_sudoku
         uid = firebase_auth.getUID()
         user_sudoku = firebase_sudoku.getUserSolution(uid, sudoku_id)
         board = self.ids.sudoku
+
+
         s = BoardSudoku().create()
         board.add_widget(s)
 
-        self.modes = (
-            '%I:%m:%S',
-            '%H:%m:%S %P',
-            '%S:',
-        )
-        self.mode = 0
-        Clock.schedule_interval(self.update_label, 0.01)
 
-    def update_label(self, dt):
-        # self.ids.counter.text = str(float(self.ids.counter.text) - 0.01)
-        now = datetime.datetime.now()
-        self.ids.counter.text = now.strftime(self.modes[self.mode])
-        if self.mode == 2:
-            self.ids.counter.text += str(now.microsecond)[:3]
+        Clock.schedule_interval(self.update_label, 1)
+
+
+    def update_label(self, obj):
+        self.ids.counter.second -= 1
+        if self.ids.counter.second == -1:
+            if self.ids.counter.minute > 0:
+                self.ids.counter.minute -= 1
+                self.ids.counter.second = 59
+            elif self.ids.counter.hour > 0:
+                self.ids.counter.hour -= 1
+                self.ids.counter.minute = 59
+                self.ids.counter.second = 59
+
+            else:
+                pass
+
+
+        h = '0' + str(self.ids.counter.hour) if len(str(self.ids.counter.hour)) == 1 else str(self.ids.counter.hour)
+        m = '0' + str(self.ids.counter.minute) if len(str(self.ids.counter.minute)) == 1 else str(self.ids.counter.minute)
+        s = '0' + str(self.ids.counter.second) if len(str(self.ids.counter.second)) == 1 else str(self.ids.counter.second)
+
+        self.ids.counter.text = h + ':' + m + ':' + s
+
+
+    def press_it(self):
+        current = self.ids.my_progress_bar.value
+        current += .25
+        self.ids.my_progress_bar.value = current
 
