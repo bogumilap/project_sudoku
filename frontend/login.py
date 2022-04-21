@@ -9,7 +9,6 @@ from kivy.uix.floatlayout import FloatLayout
 import kivy
 kivy.require('2.1.0')
 
-import frontend
 from frontend import levels
 from frontend import board
 
@@ -75,6 +74,7 @@ sm = windowManager()
 
 sm.add_widget(loginWindow(name='login'))
 sm.add_widget(levels.levelsWindow(name='levelsWindow'))
+sm.add_widget(levels.menuWindow(name='menuWindow'))
 sm.add_widget(board.GameWindow(name='GameWindow'))
 
 
@@ -85,3 +85,5 @@ class loginMain(App):
 
 if __name__ == "__main__":
     loginMain().run()
+
+

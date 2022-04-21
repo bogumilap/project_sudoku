@@ -9,12 +9,13 @@ from kivy.clock import Clock
 import re
 from firebase_connection import firebase_sudoku
 from firebase_connection import firebase_auth
+from frontend import levels
 
 kivy.require('2.1.0')
 kv = Builder.load_file('./board.kv')
 
 
-sudoku_id = 0  # to be done
+sudoku_id = 0
 sudoku = firebase_sudoku.getUnsolved(sudoku_id)
 user_sudoku = firebase_sudoku.getUserSolution(firebase_auth.getUID(), sudoku_id)
 input_map = {}  # map of NumberInput objects created in order to update firebase
@@ -83,11 +84,14 @@ class BoardSudoku(GridLayout):  # whole sudoku board, made of 9 BoardSmall
 
 
 class GameWindow(Screen):
-
     def build(self):
-        global user_sudoku
+        global sudoku_id, user_sudoku, sudoku
         uid = firebase_auth.getUID()
         user_sudoku = firebase_sudoku.getUserSolution(uid, sudoku_id)
+        sudoku_id = levels.selected_sudoku
+        user_sudoku = firebase_sudoku.getUserSolution(firebase_auth.getUID(), sudoku_id)
+        sudoku = firebase_sudoku.getUnsolved(sudoku_id)
+
         board = self.ids.sudoku
 
 
