@@ -14,9 +14,12 @@ def getLevel(id):
 
 
 def getUserSolution(uid, sudoku_id):
-    history = firebase_ref.getRef().child('history').child(str(uid))
+    if uid is None:
+        return
 
-    if history.child(str(sudoku_id)) is None:  # game needs to be added to user's game history
+    history = firebase_ref.getRef().child('history').child(str(uid)).child(str(sudoku_id))
+
+    if history.get() is None:  # game needs to be added to user's game history
         data = {
             'numbers': [[0 for _ in range(9)] for _ in range(9)],
             'time': (0, 0),
@@ -24,11 +27,11 @@ def getUserSolution(uid, sudoku_id):
             'used_hints': 0,
             'used_corrections': 0
         }
-        history.child(str(sudoku_id)).set(data)
-        no_played = firebase_ref.getRef().child('users').get('no_played')  # update user statistics
-        firebase_ref.getRef().child('users').child('no_played').set(no_played+1)
+        history.set(data)
+        no_played = firebase_ref.getRef().child('users').child(uid).child('no_played').get()  # update user statistics
+        firebase_ref.getRef().child('users').child(uid).child('no_played').set(no_played+1)
 
-    return history.child(str(sudoku_id)).child('numbers').get()
+    return history.child('numbers').get()
 
 
 def updateUserSolution(uid, sudoku_id, x, y, val):  # insert number to user's game history
@@ -55,7 +58,7 @@ def getSudokuWithLevel(level):
     lvl_sudoku = []
     for i in range(len(all_sudoku)):
         if all_sudoku[i]['level'] == level:
-            lvl_sudoku.append(i)
+            lvl_sudoku.append(all_sudoku[i]['id'])
     return lvl_sudoku
 
 
