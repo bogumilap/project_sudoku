@@ -27,7 +27,7 @@ def checkDone():
     end = True
     for i in range(9):
         for j in range(9):
-            if sudoku[i][j] == 0 and (user_sudoku[i][j] == 0 or sudoku[i][j] == ""):
+            if sudoku[i][j] == 0 and (user_sudoku[i][j] == 0 or user_sudoku[i][j] == ""):
                 end = False
     if end:
         firebase_sudoku.finishGame(firebase_auth.getUID(), sudoku_id)
@@ -39,7 +39,7 @@ def checkChanges(instance, value):
 
     for (i, j) in input_map.keys():
         num = input_map.get((i, j))
-        if str(user_sudoku[i][j]) != num.text:
+        if num.text != "" and str(user_sudoku[i][j]) != num.text:
             firebase_sudoku.updateUserSolution(firebase_auth.getUID(), sudoku_id, i, j, num.text)
 
     checkDone()
