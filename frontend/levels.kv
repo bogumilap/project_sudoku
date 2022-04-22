@@ -19,6 +19,7 @@
         pos_hint : {"x" : 0.3, "top" : 0.75}
         on_release:
             root.manager.transition.direction = "up"
+            root.changeLevel(1)
 
     Button:
         text : "MEDIUM"
@@ -26,6 +27,7 @@
         pos_hint : {"x" : 0.3, "top" : 0.60}
         on_release:
             root.manager.transition.direction = "up"
+            root.changeLevel(2)
 
     Button:
         text : "HARD"
@@ -33,3 +35,27 @@
         pos_hint : {"x" : 0.3, "top" : 0.45}
         on_release:
             root.manager.transition.direction = "up"
+            root.changeLevel(3)
+
+
+
+<menuWindow>:
+    on_enter:
+        self.build()
+
+    canvas.before:
+        Color:
+            rgba: 1, 1, 1, 1
+        Rectangle:
+            pos: self.pos
+            size: self.size
+    Label:
+        text : "SELECT SUDOKU:"
+        color: '111111'
+        bold: True
+        size_hint: 0.2, 0.1
+        pos_hint: {"top" : 1}
+
+
+<Button>:
+    size_hint : 0.4, 0.1
