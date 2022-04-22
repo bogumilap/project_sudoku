@@ -59,4 +59,110 @@ def getSudokuWithLevel(level):
     return lvl_sudoku
 
 
+def get_hint(id, history_id, square, field):
+    num = firebase_ref.getRef().child('solved_sudoku').child(id).child('numbers').child(square).child(field).get()
+    firebase_ref.getRef().child('history').child(str(history_id)).child(id).child('numbers').child(square).child(field).set(num)
+    return num
+
+
+def count_hint(id, history_id, square, field):
+    def is_repetition_in_row(board, square, field):
+        need_squares = [square]
+        if square % 3 == 0:
+            need_squares.append(square + 1)
+            need_squares.append(square + 2)
+        elif square % 3 == 1:
+            need_squares.append(square - 1)
+            need_squares.append(square + 1)
+        else:
+            need_squares.append(square - 1)
+            need_squares.append(square - 2)
+
+        need_fields = [field]
+        if field % 3 == 0:
+            need_fields.append(field + 1)
+            need_fields.append(field + 2)
+        elif field % 3 == 1:
+            need_fields.append(field - 1)
+            need_fields.append(field + 1)
+        else:
+            need_fields.append(field - 1)
+            need_fields.append(field - 2)
+
+        not_repeted = set()
+
+        for i in range(3):
+            for j in range(3):
+                elem = board.child('numbers').child(need_squares[i]).child(need_fields[j]).get()
+                if elem in not_repeted:
+                    return True
+                if elem != "":
+                    not_repeted.add(elem)
+
+        return False
+
+    def is_repetition_in_column(board, square, field):
+        need_squares = [square]
+        if square // 3 == 0:
+            need_squares.append(square + 3)
+            need_squares.append(square + 6)
+        elif square // 3 == 1:
+            need_squares.append(square - 3)
+            need_squares.append(square + 3)
+        else:
+            need_squares.append(square - 3)
+            need_squares.append(square - 6)
+
+        need_fields = [field]
+        if field // 3 == 0:
+            need_fields.append(field + 3)
+            need_fields.append(field + 6)
+        elif field // 3 == 1:
+            need_fields.append(field - 3)
+            need_fields.append(field + 3)
+        else:
+            need_fields.append(field - 3)
+            need_fields.append(field - 6)
+
+        not_repeted = set()
+
+        for i in range(3):
+            for j in range(3):
+                elem = board.child('numbers').child(need_squares[i]).child(need_fields[j]).get()
+                if elem in not_repeted:
+                    return True
+                if elem != "":
+                    not_repeted.add(elem)
+
+        return False
+
+    def is_repetition_in_box(board, square):
+        not_repeted = set()
+        for i in range(9):
+            elem = board.child('numbers').child(square).child(i).get()
+
+            if elem in not_repeted:
+                return True
+            if elem != "":
+                not_repeted.add(elem)
+
+        return False
+
+    def is_valid(board):
+        for i in range(9):
+            for j in range(9):
+                return not is_repetition_in_row(board, square, field) and not is_repetition_in_column(board, square, field) and not is_repetition_in_box(board, square)
+
+
+    board = firebase_ref.getRef().child('history').child(str(history_id)).child(id)
+
+    res = []
+    for i in range(9):
+        board.child('numbers').child(square).child(field).set(i)
+        if is_valid(board):
+            res.append(i)
+
+    return res
+
+
 

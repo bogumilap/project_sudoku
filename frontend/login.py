@@ -72,10 +72,10 @@ kv = Builder.load_file('login.kv')
 sm = windowManager()
 
 # adding screens
-
 sm.add_widget(loginWindow(name='login'))
 sm.add_widget(levels.levelsWindow(name='levelsWindow'))
 sm.add_widget(board.GameWindow(name='GameWindow'))
+
 
 
 class loginMain(App):

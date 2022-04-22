@@ -125,3 +125,10 @@ class GameWindow(Screen):
         current += .25
         self.ids.my_progress_bar.value = current
 
+    def get_hint(self):
+        num = firebase_sudoku.get_hint(sudoku_id, firebase_auth.getUID(), 1, 1)
+        #TODO: onclick - jakie field i square kliknięte
+        #TODO: stworzyć ekran, wyświetlający dodaną cyfrę oraz pozycję
+
+    def count_hint(self):
+        pass
