@@ -166,3 +166,6 @@ class GameWindow(Screen):
 
     def count_hint(self):
         pass
+
+    def press_it(self):
+        print("get!")

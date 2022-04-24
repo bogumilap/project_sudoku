@@ -37,21 +37,6 @@
     padding: 50, 20
 
 
-<RoundedButton@Button>:
-    background_color: (0,0,0,0)
-    background_normal: ''
-    canvas.before:
-        Color:
-            rgba: (39/255,209/255,245/255,1)
-        RoundedRectangle:
-            size: self.size
-            pos: self.pos
-            radius: [10]
-
-
-
-
-
 <GameWindow>:
     on_enter : self.build()
 
@@ -79,14 +64,26 @@
         GridLayout:
             cols: 1
             size_hint: 0.2, 1.0
+            markup: True
+            background_color: (0.3,0.3,0.3,1)
+            canvas.before:
+                Color:
+                    rgba: self.background_color
+                Rectangle:
+                    size: self.size
+                    pos: self.pos
+
 
             Label:
                 id: counter
                 hour: 0
                 minute: 0
                 second: 0
+                font_size: '25sp'
+                font_name: 'Orbitron-VariableFont_wght.ttf'
+                color: (0,0,0,1)
                 markup: True
-                background_color: (0.3,0.3,0.3,1)
+                background_color: (1,1,1,1)
                 canvas.before:
                     Color:
                         rgba: self.background_color
@@ -102,12 +99,25 @@
             GridLayout:
                 cols: 2
 
-                RoundedButton:
+                Button:
                     text: "Get"
+                    id: GET
+                    size_hint: 1.0, 0.5
+
+                    background_color: (39/255,209/255,245/255,1)
+                    background_normal: ''
+                    background_down: ''
+
+
+                    on_press: GET.background_color = (1,1,0,1)
+                    on_release: GET.background_color = (39/255,209/255,245/255,1)
 
 
 
-                RoundedButton:
+
+
+
+                Button:
                     text: "Count"
 
             Button:
@@ -121,6 +131,13 @@
                     text: "Pause"
 
                 Button:
+                    id: BB
                     text: "Exit"
+                    background_color: (0,0,0,0)
+                    background_normal: ''
+                    background_down: ''
+
+                    on_press: BB.background_color = (1,1,0,1)
+                    on_release: BB.background_color = (0,1,0,1)
 
 
