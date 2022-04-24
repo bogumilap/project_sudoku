@@ -22,6 +22,7 @@ sudoku = firebase_sudoku.getUnsolved(sudoku_id)
 user_sudoku = firebase_sudoku.getUserSolution(firebase_auth.getUID(), sudoku_id)
 input_map = {}  # map of NumberInput objects created in order to update firebase
 
+progress_bar = None
 
 def checkDone():
     global user_sudoku
@@ -41,8 +42,15 @@ def checkChanges(instance, value):
 
     for (i, j) in input_map.keys():
         num = input_map.get((i, j))
-        if num.text != "" and str(user_sudoku[i][j]) != num.text:
+        if str(user_sudoku[i][j]) != num.text:
             firebase_sudoku.updateUserSolution(firebase_auth.getUID(), sudoku_id, i, j, num.text)
+            if num.text != "":
+                ProgressBar.add(progress_bar)
+                firebase_sudoku.update_progress_bar(firebase_auth.getUID(), sudoku_id, ProgressBar.get_currect_value(progress_bar))
+            else:
+                ProgressBar.subtract(progress_bar)
+                firebase_sudoku.update_progress_bar(firebase_auth.getUID(), sudoku_id, ProgressBar.get_currect_value(progress_bar))
+
 
     checkDone()
 
@@ -64,7 +72,7 @@ class BoardSmall(GridLayout):  # small square 3x3
             for j in range(3*col, 3*col+3):
                 if sudoku[i][j] == 0:
                     n_input = NumberInput()
-                    if user_sudoku is not None and user_sudoku[i][j] != 0 :
+                    if user_sudoku is not None and user_sudoku[i][j] != 0:
                         n_input = NumberInput(text=str(user_sudoku[i][j]))
 
                     input_map[(i, j)] = n_input
@@ -86,12 +94,23 @@ class BoardSudoku(GridLayout):  # whole sudoku board, made of 9 BoardSmall
 
 class Timer(Label):
     def get_time(self, uid, sudoku_id):
-        print(uid, sudoku_id)
         s = firebase_connection.firebase_ref.getRef().child('history').child(str(uid)).child(str(sudoku_id)).child('time').child('2').get()
         m = firebase_connection.firebase_ref.getRef().child('history').child(str(uid)).child(str(sudoku_id)).child('time').child('1').get()
         h = firebase_connection.firebase_ref.getRef().child('history').child(str(uid)).child(str(sudoku_id)).child('time').child('0').get()
 
         return h, m, s
+
+class ProgressBar():
+    def get_progress_bar(self, uid, sudoku_id):
+        return firebase_connection.firebase_ref.getRef().child('history').child(str(uid)).child(str(sudoku_id)).child('progress_bar').get()
+    def add(self):
+        self.value = self.value + .25
+
+    def subtract(self):
+        self.value = self.value - .25
+
+    def get_currect_value(self):
+        return progress_bar.value
 
 
 class GameWindow(Screen):
@@ -105,10 +124,15 @@ class GameWindow(Screen):
 
         board = self.ids.sudoku
 
-
         s = BoardSudoku().create()
         board.add_widget(s)
 
+        # Progress bar
+        global progress_bar
+        progress_bar = self.ids.my_progress_bar
+        progress_bar.value = ProgressBar().get_progress_bar(uid, sudoku_id)
+
+        #Timer
         self.ids.counter.second = Timer().get_time(uid, sudoku_id)[2]
         self.ids.counter.minute = Timer().get_time(uid, sudoku_id)[1]
         self.ids.counter.hour = Timer().get_time(uid, sudoku_id)[0]
@@ -134,12 +158,6 @@ class GameWindow(Screen):
         s = '0' + str(self.ids.counter.second) if len(str(self.ids.counter.second)) == 1 else str(self.ids.counter.second)
 
         self.ids.counter.text = h + ':' + m + ':' + s
-
-
-    def press_it(self):
-        current = self.ids.my_progress_bar.value
-        current += .25
-        self.ids.my_progress_bar.value = current
 
     def get_hint(self):
         num = firebase_sudoku.get_hint(sudoku_id, firebase_auth.getUID(), 1, 1)

@@ -25,7 +25,8 @@ def getUserSolution(uid, sudoku_id):
             'time': [0, 0, 0],
             'game_points': 0,
             'used_hints': 0,
-            'used_corrections': 0
+            'used_corrections': 0,
+            'progress_bar': 0.0
         }
         history.set(data)
         no_played = firebase_ref.getRef().child('users').child(uid).child('no_played').get()  # update user statistics
@@ -167,5 +168,6 @@ def count_hint(id, history_id, square, field):
 
     return res
 
-
+def update_progress_bar(uid, sudoku_id, value):
+    firebase_ref.getRef().child('history').child(str(uid)).child(str(sudoku_id)).child('progress_bar').set(value)
 
