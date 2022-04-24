@@ -7,6 +7,8 @@ from kivy.uix.screenmanager import Screen
 from kivy.uix.textinput import TextInput
 from kivy.clock import Clock
 import re
+
+import firebase_connection.firebase_ref
 from firebase_connection import firebase_sudoku
 from firebase_connection import firebase_auth
 from frontend import levels
@@ -82,6 +84,15 @@ class BoardSudoku(GridLayout):  # whole sudoku board, made of 9 BoardSmall
                 self.add_widget(box)
         return self
 
+class Timer(Label):
+    def get_time(self, uid, sudoku_id):
+        print(uid, sudoku_id)
+        s = firebase_connection.firebase_ref.getRef().child('history').child(str(uid)).child(str(sudoku_id)).child('time').child('2').get()
+        m = firebase_connection.firebase_ref.getRef().child('history').child(str(uid)).child(str(sudoku_id)).child('time').child('1').get()
+        h = firebase_connection.firebase_ref.getRef().child('history').child(str(uid)).child(str(sudoku_id)).child('time').child('0').get()
+
+        return h, m, s
+
 
 class GameWindow(Screen):
     def build(self):
@@ -98,23 +109,24 @@ class GameWindow(Screen):
         s = BoardSudoku().create()
         board.add_widget(s)
 
+        self.ids.counter.second = Timer().get_time(uid, sudoku_id)[2]
+        self.ids.counter.minute = Timer().get_time(uid, sudoku_id)[1]
+        self.ids.counter.hour = Timer().get_time(uid, sudoku_id)[0]
 
         Clock.schedule_interval(self.update_label, 1)
 
 
     def update_label(self, obj):
-        self.ids.counter.second -= 1
-        if self.ids.counter.second == -1:
-            if self.ids.counter.minute > 0:
-                self.ids.counter.minute -= 1
-                self.ids.counter.second = 59
-            elif self.ids.counter.hour > 0:
-                self.ids.counter.hour -= 1
-                self.ids.counter.minute = 59
-                self.ids.counter.second = 59
+        self.ids.counter.second += 1
+        if self.ids.counter.second == 60:
+            if self.ids.counter.minute + 1 > 59:
+                self.ids.counter.minute = 0
+                self.ids.counter.second = 0
+                self.ids.counter.hour += 1
 
             else:
-                pass
+                self.ids.counter.minute += 1
+                self.ids.counter.second = 0
 
 
         h = '0' + str(self.ids.counter.hour) if len(str(self.ids.counter.hour)) == 1 else str(self.ids.counter.hour)

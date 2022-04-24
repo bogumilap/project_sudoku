@@ -22,7 +22,7 @@ def getUserSolution(uid, sudoku_id):
     if history.get() is None:  # game needs to be added to user's game history
         data = {
             'numbers': [[0 for _ in range(9)] for _ in range(9)],
-            'time': (0, 0),
+            'time': [0, 0, 0],
             'game_points': 0,
             'used_hints': 0,
             'used_corrections': 0
