@@ -1,6 +1,8 @@
 import datetime
 import kivy
 from kivy.lang import Builder
+from kivy.properties import ObjectProperty
+from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.label import Label
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.screenmanager import Screen
@@ -12,6 +14,9 @@ import firebase_connection.firebase_ref
 from firebase_connection import firebase_sudoku
 from firebase_connection import firebase_auth
 from frontend import levels
+
+from kivy.uix.popup import Popup
+
 
 kivy.require('2.1.0')
 kv = Builder.load_file('./board.kv')
@@ -54,12 +59,35 @@ def checkChanges(instance, value):
 
     checkDone()
 
+class PopUpButtons(FloatLayout):
+    # function that displays the content
+    def popGet(self):
+        show = PopUpButtons()
+        window = Popup(title="popup", content=show, size_hint=(None, None), size=(300, 300))
+        window.open()
+
+    row = ObjectProperty(None)
+    column = ObjectProperty(None)
+
+    def get_hint(self):
+        num = firebase_sudoku.get_hint(sudoku_id, firebase_auth.getUID(), self.row.text, self.column.text)
+        #TODO: wyświetlenie w komórce tekstowej cyfry
+
+        # i = int(self.row.text)
+        # j = int(self.column.text)
+        # n_input = NumberInput(text=str(user_sudoku[i][j]))
+        # input_map[(i, j)] = n_input
+
+        # user_sudoku[int(self.row.text)][int(self.column.text)] = num
+        # firebase_sudoku.updateUserSolution(firebase_auth.getUID(), sudoku_id, self.row.text, self.column.text, num)
+
 
 class NumberLabel(Label):  # custom label for displaying numbers in sudoku
     pass
 
 
 class NumberInput(TextInput):   # custom text input to verify user input (only one digit)
+    id = ObjectProperty(None)
     def insert_text(self, substring, from_undo=False):
         self.text = ''
         pat = re.sub('[^1-9]$', '', substring)
@@ -159,10 +187,8 @@ class GameWindow(Screen):
 
         self.ids.counter.text = h + ':' + m + ':' + s
 
-    def get_hint(self):
-        num = firebase_sudoku.get_hint(sudoku_id, firebase_auth.getUID(), 1, 1)
-        #TODO: onclick - jakie field i square kliknięte
-        #TODO: stworzyć ekran, wyświetlający dodaną cyfrę oraz pozycję
+    def get_popup(self):
+        PopUpButtons.popGet(self)
 
     def count_hint(self):
         pass

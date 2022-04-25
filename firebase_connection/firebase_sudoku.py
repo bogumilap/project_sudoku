@@ -64,8 +64,9 @@ def getSudokuWithLevel(level):
 
 
 def get_hint(id, history_id, square, field):
-    num = firebase_ref.getRef().child('solved_sudoku').child(id).child('numbers').child(square).child(field).get()
-    firebase_ref.getRef().child('history').child(str(history_id)).child(id).child('numbers').child(square).child(field).set(num)
+    print(square, field)
+    num = firebase_ref.getRef().child('solved_sudoku').child(str(id)).child('numbers').child(square).child(field).get()
+    firebase_ref.getRef().child('history').child(str(history_id)).child(str(id)).child('numbers').child(square).child(field).set(num)
     return num
 
 

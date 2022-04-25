@@ -102,23 +102,32 @@
                 Button:
                     text: "Get"
                     id: GET
-                    size_hint: 1.0, 0.5
 
                     background_color: (39/255,209/255,245/255,1)
                     background_normal: ''
                     background_down: ''
 
 
-                    on_press: GET.background_color = (1,1,0,1)
-                    on_release: GET.background_color = (39/255,209/255,245/255,1)
-
-
-
-
+                    on_press:
+                        GET.background_color = (165/255,1,1,1)
+                        root.get_popup()
+                    on_release:
+                        GET.background_color = (39/255,209/255,245/255,1)
 
 
                 Button:
                     text: "Count"
+
+                    id: COUNT
+
+                    background_color: (14/255,92/255,1,1)
+                    background_normal: ''
+                    background_down: ''
+
+                    on_press:
+                        COUNT.background_color = (14/255,0,1,1)
+                    on_release:
+                        COUNT.background_color = (14/255,92/255,1,1)
 
             Button:
                 text: "Correct"
@@ -140,4 +149,43 @@
                     on_press: BB.background_color = (1,1,0,1)
                     on_release: BB.background_color = (0,1,0,1)
 
+# pop up window
+<PopUpButtons>:
+    row: row
+    column: column
+
+	Label:
+		text : "Enter row:"
+		size_hint : 0.2, 0.1
+		pos_hint : {"x" : 0.4, "top" : 0.9}
+		opacity: 0.5
+
+	TextInput:
+        id : row
+        multiline : False
+        padding: 0, 0
+        size_hint : 0.2, 0.15
+        pos_hint : {"x" : 0.4, "top" : 0.8}
+        opacity: 0.7
+
+    Label:
+		text : "Enter column:"
+		size_hint : 0.2, 0.1
+		pos_hint : {"x" : 0.4, "top" : 0.6}
+		opacity: 0.5
+
+	TextInput:
+        id : column
+        multiline : False
+        size_hint : 0.2, 0.15
+        pos_hint : {"x" : 0.4, "top" : 0.5}
+        opacity: 0.7
+
+    Button:
+        id: useGet
+        text: "GET"
+        size_hint : 0.6, 0.2
+        pos_hint : {"x" : 0.2, "top" : 0.3}
+        on_press:
+            root.get_hint()
 
