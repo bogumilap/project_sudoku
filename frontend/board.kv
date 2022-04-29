@@ -110,7 +110,7 @@
 
                     on_press:
                         GET.background_color = (165/255,1,1,1)
-                        root.get_popup()
+                        root.get_popup("get")
                     on_release:
                         GET.background_color = (39/255,209/255,245/255,1)
 
@@ -126,6 +126,8 @@
 
                     on_press:
                         COUNT.background_color = (14/255,0,1,1)
+                        root.get_popup("count")
+
                     on_release:
                         COUNT.background_color = (14/255,92/255,1,1)
 
@@ -150,7 +152,7 @@
                     on_release: BB.background_color = (0,1,0,1)
 
 # pop up window
-<PopUpButtons>:
+<PopUpHints>:
     row: row
     column: column
 
@@ -181,11 +183,4 @@
         pos_hint : {"x" : 0.4, "top" : 0.5}
         opacity: 0.7
 
-    Button:
-        id: useGet
-        text: "GET"
-        size_hint : 0.6, 0.2
-        pos_hint : {"x" : 0.2, "top" : 0.3}
-        on_press:
-            root.get_hint()
 

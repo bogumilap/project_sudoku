@@ -2,6 +2,7 @@ import datetime
 import kivy
 from kivy.lang import Builder
 from kivy.properties import ObjectProperty
+from kivy.uix.button import Button
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.label import Label
 from kivy.uix.gridlayout import GridLayout
@@ -59,27 +60,32 @@ def checkChanges(instance, value):
 
     checkDone()
 
-class PopUpButtons(FloatLayout):
-    # function that displays the content
-    def popGet(self):
-        show = PopUpButtons()
-        window = Popup(title="popup", content=show, size_hint=(None, None), size=(300, 300))
-        window.open()
 
+class PopUpHints(FloatLayout):
     row = ObjectProperty(None)
     column = ObjectProperty(None)
 
-    def get_hint(self):
-        num = firebase_sudoku.get_hint(sudoku_id, firebase_auth.getUID(), self.row.text, self.column.text)
-        #TODO: wyświetlenie w komórce tekstowej cyfry
+    def popGet(self):
+        self.show = PopUpHints()
+        btn1 = Button(text="GET", size_hint=(0.6, 0.2), pos_hint={"x": 0.2, "top": 0.3})
+        self.show.add_widget(btn1)
+        window = Popup(title="Get the hint!", content=self.show, size_hint=(None, None), size=(300, 300))
+        btn1.bind(on_press=self.get_hint)
+        window.open()
 
-        # i = int(self.row.text)
-        # j = int(self.column.text)
-        # n_input = NumberInput(text=str(user_sudoku[i][j]))
-        # input_map[(i, j)] = n_input
+    def get_hint(self, obj):
+        num = firebase_sudoku.get_hint(sudoku_id, firebase_auth.getUID(), self.show.ids.row.text, self.show.ids.column.text)
 
-        # user_sudoku[int(self.row.text)][int(self.column.text)] = num
-        # firebase_sudoku.updateUserSolution(firebase_auth.getUID(), sudoku_id, self.row.text, self.column.text, num)
+    def popCount(self):
+        self.show = PopUpHints()
+        btnCount = Button(text="SHOW", size_hint=(0.6, 0.2), pos_hint={"x": 0.2, "top": 0.3})
+        self.show.add_widget(btnCount)
+        window = Popup(title="Show all possible number!", content=self.show, size_hint=(None, None), size=(300, 300))
+        btnCount.bind(on_press=self.get_count)
+        window.open()
+
+    def get_count(self, obj):
+        print("Hello!")
 
 
 class NumberLabel(Label):  # custom label for displaying numbers in sudoku
@@ -187,11 +193,11 @@ class GameWindow(Screen):
 
         self.ids.counter.text = h + ':' + m + ':' + s
 
-    def get_popup(self):
-        PopUpButtons.popGet(self)
+    def get_popup(self, t):
+        self.popup_elem = PopUpHints()
+        if t == "get":
+            self.popup_elem.popGet()
+        elif t == "count":
+            self.popup_elem.popCount()
 
-    def count_hint(self):
-        pass
 
-    def press_it(self):
-        print("get!")
