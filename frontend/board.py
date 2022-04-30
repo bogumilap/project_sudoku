@@ -1,7 +1,9 @@
 import datetime
 import kivy
+from kivy.core.window import Window
 from kivy.lang import Builder
 from kivy.properties import ObjectProperty
+from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.label import Label
@@ -60,6 +62,28 @@ def checkChanges(instance, value):
 
     checkDone()
 
+class DataTable(BoxLayout):
+    def __init__(self,table='', **kwargs):
+        super().__init__(**kwargs)
+
+        data = firebase_connection.firebase_ref.getRef().child('history').child(str(firebase_auth.getUID()))\
+            .child(str(sudoku_id)).child('database')
+
+        column_titles = ["lp", "row", "column", "numbers"]
+        self.columns = 4
+        rows_length = len(data.get())
+        table_data = []
+        for y in column_titles:
+            table_data.append({'text':str(y),'size_hint_y':None,'height':30,'bcolor':(0,135/255,85/255,1)})
+
+        for i in range(rows_length):
+            table_data.append({'text':str(i),'size_hint_y':None,'height':20,'bcolor':(94/255,209/255,121/255,1)})
+            table_data.append({'text':str(data.child(str(i)).child('row').get()),'size_hint_y':None,'height':20,'bcolor':(94/255,209/255,121/255,1)})
+            table_data.append({'text':str(data.child(str(i)).child('column').get()),'size_hint_y':None,'height':20,'bcolor':(94/255,209/255,121/255,1)})
+            table_data.append({'text':str(data.child(str(i)).child('numbers').get()),'size_hint_y':None,'height':20,'bcolor':(94/255,209/255,121/255,1)})
+
+        self.ids.table_floor_layout.cols = self.columns
+        self.ids.table_floor.data = table_data
 
 class PopUpHints(FloatLayout):
     row = ObjectProperty(None)
@@ -85,7 +109,18 @@ class PopUpHints(FloatLayout):
         window.open()
 
     def get_count(self, obj):
-        print("Hello!")
+        res = firebase_sudoku.get_count(sudoku_id, firebase_auth.getUID(), self.show.ids.row.text, self.show.ids.column.text)
+        data_size = len(firebase_connection.firebase_ref.getRef().child('history').child(str(firebase_auth.getUID()))\
+            .child(str(sudoku_id)).child('database').get())
+
+        database_data = {
+            'column': self.show.ids.column.text,
+            'numbers': res,
+            'row': self.show.ids.row.text,
+        }
+
+        firebase_connection.firebase_ref.getRef().child('history').child(str(firebase_auth.getUID())) \
+            .child(str(sudoku_id)).child('database').child(str(data_size)).set(database_data)
 
 
 class NumberLabel(Label):  # custom label for displaying numbers in sudoku
@@ -160,6 +195,9 @@ class GameWindow(Screen):
 
         s = BoardSudoku().create()
         board.add_widget(s)
+
+        # DataTable
+        self.ids.table_id.add_widget(DataTable())
 
         # Progress bar
         global progress_bar

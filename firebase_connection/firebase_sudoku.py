@@ -30,7 +30,7 @@ def getUserSolution(uid, sudoku_id):
         }
         history.set(data)
         no_played = firebase_ref.getRef().child('users').child(uid).child('no_played').get()  # update user statistics
-        firebase_ref.getRef().child('users').child(uid).child('no_played').set(no_played+1)
+        firebase_ref.getRef().child('users').child(uid).child('no_played').set(no_played + 1)
 
     return history.child('numbers').get()
 
@@ -70,105 +70,88 @@ def get_hint(id, history_id, square, field):
     return num
 
 
-def count_hint(id, history_id, square, field):
-    def is_repetition_in_row(board, square, field):
-        need_squares = [square]
-        if square % 3 == 0:
-            need_squares.append(square + 1)
-            need_squares.append(square + 2)
-        elif square % 3 == 1:
-            need_squares.append(square - 1)
-            need_squares.append(square + 1)
-        else:
-            need_squares.append(square - 1)
-            need_squares.append(square - 2)
+def check_column_range(column_num):
+    column_range_begin = None
+    column_range_end = None
 
-        need_fields = [field]
-        if field % 3 == 0:
-            need_fields.append(field + 1)
-            need_fields.append(field + 2)
-        elif field % 3 == 1:
-            need_fields.append(field - 1)
-            need_fields.append(field + 1)
-        else:
-            need_fields.append(field - 1)
-            need_fields.append(field - 2)
+    if 0 <= column_num <= 2:
+        column_range_begin = 0
+        column_range_end = 3
+    elif 3 <= column_num <= 5:
+        column_range_begin = 3
+        column_range_end = 6
+    elif 6 <= column_num <= 8:
+        column_range_begin = 6
+        column_range_end = 9
+    else:
+        print("Incorrect column num")
 
-        not_repeted = set()
-
-        for i in range(3):
-            for j in range(3):
-                elem = board.child('numbers').child(need_squares[i]).child(need_fields[j]).get()
-                if elem in not_repeted:
-                    return True
-                if elem != "":
-                    not_repeted.add(elem)
-
-        return False
-
-    def is_repetition_in_column(board, square, field):
-        need_squares = [square]
-        if square // 3 == 0:
-            need_squares.append(square + 3)
-            need_squares.append(square + 6)
-        elif square // 3 == 1:
-            need_squares.append(square - 3)
-            need_squares.append(square + 3)
-        else:
-            need_squares.append(square - 3)
-            need_squares.append(square - 6)
-
-        need_fields = [field]
-        if field // 3 == 0:
-            need_fields.append(field + 3)
-            need_fields.append(field + 6)
-        elif field // 3 == 1:
-            need_fields.append(field - 3)
-            need_fields.append(field + 3)
-        else:
-            need_fields.append(field - 3)
-            need_fields.append(field - 6)
-
-        not_repeted = set()
-
-        for i in range(3):
-            for j in range(3):
-                elem = board.child('numbers').child(need_squares[i]).child(need_fields[j]).get()
-                if elem in not_repeted:
-                    return True
-                if elem != "":
-                    not_repeted.add(elem)
-
-        return False
-
-    def is_repetition_in_box(board, square):
-        not_repeted = set()
-        for i in range(9):
-            elem = board.child('numbers').child(square).child(i).get()
-
-            if elem in not_repeted:
-                return True
-            if elem != "":
-                not_repeted.add(elem)
-
-        return False
-
-    def is_valid(board):
-        for i in range(9):
-            for j in range(9):
-                return not is_repetition_in_row(board, square, field) and not is_repetition_in_column(board, square, field) and not is_repetition_in_box(board, square)
+    return column_range_begin, column_range_end
 
 
-    board = firebase_ref.getRef().child('history').child(str(history_id)).child(id)
+def get_count(id, history_id, row_arg, column_arg):
+    column = [False] * 10
+    row = [False] * 10
+    box = [False] * 10
+
+    # column and row
+    for i in range(9):
+        column_num = firebase_ref.getRef().child('history').child(str(history_id)).child(str(id)).child(
+            'numbers').child(str(i)).child(str(column_arg)).get()
+        row_num = firebase_ref.getRef().child('history').child(str(history_id)).child(str(id)).child('numbers').child(
+            row_arg).child(str(i)).get()
+        if column_num != "":
+            solved_column_num = firebase_ref.getRef().child('solved_sudoku').child(str(id)).child('numbers').child(
+                str(i)).child(column_arg).get()
+            if (column_num != 0 and int(column_num) == solved_column_num) or column_num == 0:
+                column[solved_column_num] = True
+
+        if row_num != "":
+            solved_row_num = firebase_ref.getRef().child('solved_sudoku').child(str(id)).child('numbers').child(
+                row_arg).child(str(i)).get()
+            if (row_num != 0 and int(row_num) == solved_row_num) or row_num == 0:
+                row[solved_row_num] = True
+
+    # box
+    row_range_begin = None
+    column_range_begin = None
+    row_range_end = None
+    column_range_end = None
+
+    if 0 <= int(row_arg) <= 2:
+        row_range_begin = 0
+        row_range_end = 3
+
+        column_range_begin, column_range_end = check_column_range(int(column_arg))
+
+    elif 3 <= int(row_arg) <= 5:
+        row_range_begin = 3
+        row_range_end = 6
+
+        column_range_begin, column_range_end = check_column_range(int(column_arg))
+
+    elif 6 <= int(row_arg) <= 8:
+        row_range_begin = 6
+        row_range_end = 9
+
+        column_range_begin, column_range_end = check_column_range(int(column_arg))
+
+    for i in range(row_range_begin, row_range_end):
+        for j in range(column_range_begin, column_range_end):
+            box_num = firebase_ref.getRef().child('history').child(str(history_id)).child(str(id)).child(
+                'numbers').child(str(i)).child(str(j)).get()
+            if box_num != "":
+                solved_box_num = firebase_ref.getRef().child('solved_sudoku').child(str(id)).child(
+                    'numbers').child(str(i)).child(str(j)).get()
+                if (box_num != 0 and int(box_num) == solved_box_num) or box_num == 0:
+                    box[solved_box_num] = True
 
     res = []
-    for i in range(9):
-        board.child('numbers').child(square).child(field).set(i)
-        if is_valid(board):
+    for i in range(1, 10):
+        if row[i] == False and column[i] == False and box[i] == False:
             res.append(i)
 
     return res
 
 def update_progress_bar(uid, sudoku_id, value):
     firebase_ref.getRef().child('history').child(str(uid)).child(str(sudoku_id)).child('progress_bar').set(value)
-

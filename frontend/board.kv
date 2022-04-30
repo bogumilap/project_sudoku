@@ -46,7 +46,7 @@
 
         GridLayout:
             cols:1
-            size_hint: 0.8, 1.0
+            size_hint: 0.7, 1.0
 
             ProgressBar:
                 id: my_progress_bar
@@ -63,7 +63,7 @@
 
         GridLayout:
             cols: 1
-            size_hint: 0.2, 1.0
+            size_hint: 0.3, 1.0
             markup: True
             background_color: (0.3,0.3,0.3,1)
             canvas.before:
@@ -90,11 +90,14 @@
                     RoundedRectangle:
                         size: self.size
                         pos: self.pos
-                        radius: 100, 100, 100, 100
+                        radius: 200, 200, 200, 200
 
 
             Label:
                 text: "Hint: left 3/3"
+
+            BoxLayout:
+                id: table_id
 
             GridLayout:
                 cols: 2
@@ -184,3 +187,24 @@
         opacity: 0.7
 
 
+<DataTable>:
+    id: table_count
+    RecycleView:
+        viewclass: 'CustomLabel'
+        id: table_floor
+        RecycleGridLayout:
+            id: table_floor_layout
+            cols: 5
+            default_size: (None,250)
+            default_size_hint: (1,None)
+            size_hint_y: None
+            height: self.minimum_height
+            spacing: 5
+<CustomLabel@Label>:
+    bcolor: (1,1,1,1)
+    canvas.before:
+        Color:
+            rgba: root.bcolor
+        Rectangle:
+            size: self.size
+            pos: self.pos
