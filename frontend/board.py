@@ -292,12 +292,14 @@ class GameWindow(Screen):
 
     def reset_game(self):
         firebase_sudoku.reset_game(firebase_auth.getUID(), sudoku_id)
+        self.clock.unschedule(self.update_label)
         self.refresh()
 
     def exit_game(self):
         self.time.update_time(firebase_auth.getUID(), sudoku_id, self.ids.counter.hour, self.ids.counter.minute,self.ids.counter.second)
         self.ids.table_id.remove_widget(self.dt)
         self.board.remove_widget(self.s)
+        self.clock.unschedule(self.update_label)
         App.get_running_app().root.current = "levelsWindow"
 
 
