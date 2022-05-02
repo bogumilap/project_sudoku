@@ -1,5 +1,6 @@
 import datetime
 import kivy
+from kivy.app import App
 from kivy.core.window import Window
 from kivy.lang import Builder
 from kivy.properties import ObjectProperty
@@ -31,7 +32,7 @@ user_sudoku = firebase_sudoku.getUserSolution(firebase_auth.getUID(), sudoku_id)
 input_map = {}  # map of NumberInput objects created in order to update firebase
 
 progress_bar = None
-
+game_window = None
 def checkDone():
     global user_sudoku
     user_sudoku = firebase_sudoku.getUserSolution(firebase_auth.getUID(), sudoku_id)
@@ -93,20 +94,22 @@ class PopUpHints(FloatLayout):
         self.show = PopUpHints()
         btn1 = Button(text="GET", size_hint=(0.6, 0.2), pos_hint={"x": 0.2, "top": 0.3})
         self.show.add_widget(btn1)
-        window = Popup(title="Get the hint!", content=self.show, size_hint=(None, None), size=(300, 300))
+        self.window = Popup(title="Get the hint!", content=self.show, size_hint=(None, None), size=(300, 300))
         btn1.bind(on_press=self.get_hint)
-        window.open()
+        self.window.open()
 
     def get_hint(self, obj):
         num = firebase_sudoku.get_hint(sudoku_id, firebase_auth.getUID(), self.show.ids.row.text, self.show.ids.column.text)
+        game_window.refresh()
+        self.window.dismiss()
 
     def popCount(self):
         self.show = PopUpHints()
         btnCount = Button(text="SHOW", size_hint=(0.6, 0.2), pos_hint={"x": 0.2, "top": 0.3})
         self.show.add_widget(btnCount)
-        window = Popup(title="Show all possible number!", content=self.show, size_hint=(None, None), size=(300, 300))
+        self.window = Popup(title="Show all possible number!", content=self.show, size_hint=(None, None), size=(300, 300))
         btnCount.bind(on_press=self.get_count)
-        window.open()
+        self.window.open()
 
     def get_count(self, obj):
         res = firebase_sudoku.get_count(sudoku_id, firebase_auth.getUID(), self.show.ids.row.text, self.show.ids.column.text)
@@ -122,6 +125,29 @@ class PopUpHints(FloatLayout):
         firebase_connection.firebase_ref.getRef().child('history').child(str(firebase_auth.getUID())) \
             .child(str(sudoku_id)).child('database').child(str(data_size)).set(database_data)
 
+        game_window.refresh()
+        self.window.dismiss()
+
+
+class PopUpPause(FloatLayout):
+
+    def popPause(self):
+        self.show = PopUpPause()
+        self.show.ids.resume.bind(on_press=self.resume_click)
+        self.show.ids.reset.bind(on_press=self.reset_click)
+        self.show.ids.exit.bind(on_press=self.exit_click)
+        self.window = Popup(title="Pause!", content=self.show, size_hint=(None, None), size=(300, 300))
+        self.window.open()
+
+    def resume_click(self, obj):
+        self.window.dismiss()
+
+    def reset_click(self, obj):
+        pass
+
+    def exit_click(self, obj):
+        self.window.dismiss()
+        game_window.exit_game()
 
 class NumberLabel(Label):  # custom label for displaying numbers in sudoku
     pass
@@ -191,13 +217,14 @@ class GameWindow(Screen):
         user_sudoku = firebase_sudoku.getUserSolution(firebase_auth.getUID(), sudoku_id)
         sudoku = firebase_sudoku.getUnsolved(sudoku_id)
 
-        board = self.ids.sudoku
+        self.board = self.ids.sudoku
 
-        s = BoardSudoku().create()
-        board.add_widget(s)
+        self.s = BoardSudoku().create()
+        self.board.add_widget(self.s)
 
         # DataTable
-        self.ids.table_id.add_widget(DataTable())
+        self.dt = DataTable()
+        self.ids.table_id.add_widget(self.dt)
 
         # Progress bar
         global progress_bar
@@ -211,6 +238,8 @@ class GameWindow(Screen):
 
         Clock.schedule_interval(self.update_label, 1)
 
+        global game_window
+        game_window = self
 
     def update_label(self, obj):
         self.ids.counter.second += 1
@@ -233,9 +262,22 @@ class GameWindow(Screen):
 
     def get_popup(self, t):
         self.popup_elem = PopUpHints()
+        self.popup_pause = PopUpPause()
         if t == "get":
             self.popup_elem.popGet()
         elif t == "count":
             self.popup_elem.popCount()
+        elif t == "pause":
+            self.popup_pause.popPause()
+
+    def refresh(self):
+        self.ids.table_id.remove_widget(self.dt)
+        self.board.remove_widget(self.s)
+        self.build()
+
+    def exit_game(self):
+        self.ids.table_id.remove_widget(self.dt)
+        self.board.remove_widget(self.s)
+        App.get_running_app().root.current = "levelsWindow"
 
 

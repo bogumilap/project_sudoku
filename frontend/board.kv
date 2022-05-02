@@ -53,10 +53,10 @@
                 value: .0
                 min: 0
                 max: 1
-                size_hint: 0.8, 0.1
+                size_hint: 0.7, 0.1
 
             FloatLayout:
-                size_hint: 0.8, 0.85
+                size_hint: 0.7, 0.85
                 BoxLayout:
                     id: sudoku
                     orientation: "vertical"
@@ -106,6 +106,7 @@
                     text: "Get"
                     id: GET
 
+
                     background_color: (39/255,209/255,245/255,1)
                     background_normal: ''
                     background_down: ''
@@ -120,7 +121,6 @@
 
                 Button:
                     text: "Count"
-
                     id: COUNT
 
                     background_color: (14/255,92/255,1,1)
@@ -134,25 +134,61 @@
                     on_release:
                         COUNT.background_color = (14/255,92/255,1,1)
 
-            Button:
-                text: "Correct"
+            GridLayout:
+                cols : 2
+
+                Button:
+                    text: "Correct - get"
+
+                Button:
+                    text: "Correct - elimination"
 
             GridLayout:
                 cols:3
                 Button:
-                    text: "Restart"
-                Button:
-                    text: "Pause"
+                    text: "Reset"
+                    id: RESET
 
-                Button:
-                    id: BB
-                    text: "Exit"
-                    background_color: (0,0,0,0)
+                    background_color: (219/255,221/255,56/255,1)
                     background_normal: ''
                     background_down: ''
 
-                    on_press: BB.background_color = (1,1,0,1)
-                    on_release: BB.background_color = (0,1,0,1)
+                    on_press:
+                        RESET.background_color = (180/255,181/255,44/255,1)
+
+                    on_release:
+                        RESET.background_color = (219/255,221/255,56/255,1)
+
+
+                Button:
+                    text: "Pause"
+                    id: PAUSE
+
+                    background_color: (18/255,186/255,149/255,1)
+                    background_normal: ''
+                    background_down: ''
+
+                    on_press:
+                        PAUSE.background_color = (11/255,137/255,109/255,1)
+                        root.get_popup("pause")
+
+                    on_release:
+                        PAUSE.background_color = (18/255,186/255,149/255,1)
+
+                Button:
+                    text: "Exit"
+                    id: EXIT
+
+                    background_color: (221/255,26/255,26/255,1)
+                    background_normal: ''
+                    background_down: ''
+
+                    on_press:
+                        EXIT.background_color = (185/255,20/255,20/255,1)
+                        root.exit_game()
+
+                    on_release:
+                        EXIT.background_color = (221/255,26/255,26/255,1)
 
 # pop up window
 <PopUpHints>:
@@ -208,3 +244,30 @@
         Rectangle:
             size: self.size
             pos: self.pos
+
+<PopUpPause>:
+    size: root.width, root.height
+    Label:
+        text: "Pause clicked. Time for break!"
+        size_hint: 1, 0.1
+		pos_hint : {"x" : 0, "top" : 0.9}
+
+    Button:
+        id: resume
+        size_hint: 1, 0.2
+		pos_hint : {"x" : 0, "top" : 0.7}
+        text: "Resume"
+
+    Button:
+        id: reset
+        size_hint: 1, 0.2
+		pos_hint : {"x" : 0, "top" : 0.5}
+        text: "Restart"
+
+    Button:
+        id: exit
+        size_hint: 1, 0.2
+		pos_hint : {"x" : 0, "top" : 0.3}
+        text: "Exit"
+
+
