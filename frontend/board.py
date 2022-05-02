@@ -33,6 +33,7 @@ input_map = {}  # map of NumberInput objects created in order to update firebase
 
 progress_bar = None
 game_window = None
+
 def checkDone():
     global user_sudoku
     user_sudoku = firebase_sudoku.getUserSolution(firebase_auth.getUID(), sudoku_id)
@@ -140,6 +141,7 @@ class PopUpPause(FloatLayout):
         self.window.open()
 
     def resume_click(self, obj):
+        game_window.start_timer()
         self.window.dismiss()
 
     def reset_click(self, obj):
@@ -195,6 +197,12 @@ class Timer(Label):
 
         return h, m, s
 
+    def update_time(self, uid, sudoku_id, hour, minute, second):
+        firebase_connection.firebase_ref.getRef().child('history').child(str(uid)).child(str(sudoku_id)).child('time').child('2').set(second)
+        firebase_connection.firebase_ref.getRef().child('history').child(str(uid)).child(str(sudoku_id)).child('time').child('1').set(minute)
+        firebase_connection.firebase_ref.getRef().child('history').child(str(uid)).child(str(sudoku_id)).child('time').child('0').set(hour)
+
+
 class ProgressBar():
     def get_progress_bar(self, uid, sudoku_id):
         return firebase_connection.firebase_ref.getRef().child('history').child(str(uid)).child(str(sudoku_id)).child('progress_bar').get()
@@ -231,15 +239,19 @@ class GameWindow(Screen):
         progress_bar = self.ids.my_progress_bar
         progress_bar.value = ProgressBar().get_progress_bar(uid, sudoku_id)
 
-        #Timer
-        self.ids.counter.second = Timer().get_time(uid, sudoku_id)[2]
-        self.ids.counter.minute = Timer().get_time(uid, sudoku_id)[1]
-        self.ids.counter.hour = Timer().get_time(uid, sudoku_id)[0]
-
-        Clock.schedule_interval(self.update_label, 1)
+        self.time = Timer()
+        self.start_timer()
 
         global game_window
         game_window = self
+
+    def start_timer(self):
+        self.ids.counter.second = self.time.get_time(firebase_auth.getUID(), sudoku_id)[2]
+        self.ids.counter.minute = self.time.get_time(firebase_auth.getUID(), sudoku_id)[1]
+        self.ids.counter.hour = self.time.get_time(firebase_auth.getUID(), sudoku_id)[0]
+
+        self.clock = Clock
+        self.clock.schedule_interval(self.update_label, 1)
 
     def update_label(self, obj):
         self.ids.counter.second += 1
@@ -268,6 +280,8 @@ class GameWindow(Screen):
         elif t == "count":
             self.popup_elem.popCount()
         elif t == "pause":
+            self.clock.unschedule(self.update_label)
+            self.time.update_time(firebase_auth.getUID(), sudoku_id, self.ids.counter.hour, self.ids.counter.minute, self.ids.counter.second)
             self.popup_pause.popPause()
 
     def refresh(self):
@@ -276,6 +290,7 @@ class GameWindow(Screen):
         self.build()
 
     def exit_game(self):
+        self.time.update_time(firebase_auth.getUID(), sudoku_id, self.ids.counter.hour, self.ids.counter.minute,self.ids.counter.second)
         self.ids.table_id.remove_widget(self.dt)
         self.board.remove_widget(self.s)
         App.get_running_app().root.current = "levelsWindow"
