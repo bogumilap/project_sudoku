@@ -26,7 +26,8 @@ def getUserSolution(uid, sudoku_id):
             'game_points': 0,
             'used_hints': 0,
             'used_corrections': 0,
-            'progress_bar': 0.0
+            'progress_bar': 0.0,
+            'database': []
         }
         history.set(data)
         no_played = firebase_ref.getRef().child('users').child(uid).child('no_played').get()  # update user statistics
@@ -155,3 +156,17 @@ def get_count(id, history_id, row_arg, column_arg):
 
 def update_progress_bar(uid, sudoku_id, value):
     firebase_ref.getRef().child('history').child(str(uid)).child(str(sudoku_id)).child('progress_bar').set(value)
+
+def reset_game(uid, sudoku_id):
+    unsolved_sudoku = firebase_ref.getRef().child('unsolved_sudoku').child(str(sudoku_id)).get()
+    firebase_ref.getRef().child('history').child(str(uid)).child(str(sudoku_id)).set(unsolved_sudoku)
+    firebase_ref.getRef().child('history').child(str(uid)).child(str(sudoku_id)).child('database').set("")
+    firebase_ref.getRef().child('history').child(str(uid)).child(str(sudoku_id)).child('game_points').set(0)
+    firebase_ref.getRef().child('history').child(str(uid)).child(str(sudoku_id)).child('progress_bar').set(0)
+    firebase_ref.getRef().child('history').child(str(uid)).child(str(sudoku_id)).child('time').child(str(0)).set(0)
+    firebase_ref.getRef().child('history').child(str(uid)).child(str(sudoku_id)).child('time').child(str(1)).set(0)
+    firebase_ref.getRef().child('history').child(str(uid)).child(str(sudoku_id)).child('time').child(str(2)).set(0)
+    firebase_ref.getRef().child('history').child(str(uid)).child(str(sudoku_id)).child('used_corrections').set(0)
+    firebase_ref.getRef().child('history').child(str(uid)).child(str(sudoku_id)).child('used_hints').set(0)
+
+
