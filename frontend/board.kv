@@ -111,7 +111,6 @@
                     background_normal: ''
                     background_down: ''
 
-
                     on_press:
                         GET.background_color = (165/255,1,1,1)
                         root.get_popup("get")
@@ -138,10 +137,12 @@
                 cols : 2
 
                 Button:
-                    text: "Correct - get"
+                    text: "show error (db)"
+                    on_press: root.displayErrorsDB()
 
                 Button:
-                    text: "Correct - elimination"
+                    text: "show error\n(calculate)"
+                    on_press: root.displayErrorsCalc()
 
             GridLayout:
                 cols:3

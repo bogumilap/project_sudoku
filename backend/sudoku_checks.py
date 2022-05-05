@@ -13,20 +13,20 @@ def checkDone(uid, sudoku_id, sudoku):
 
 
 def getErrorsDB(sudoku_id, sudoku):
-    correct_sudoku = firebase_ref.getRef().child("solved_sudoku").child(sudoku_id).child("numbers").get()
+    errors = []
+    correct_sudoku = firebase_ref.getRef().child("solved_sudoku").child(str(sudoku_id)).child("numbers").get()
     for i in range(9):
         for j in range(9):
             if sudoku[i][j] != 0 and sudoku[i][j] != "":
-                if sudoku[i][j] != str(correct_sudoku[i][j]):
-                    return False
-    return True
+                if str(sudoku[i][j]) != str(correct_sudoku[i][j]):
+                    errors.append((i, j))
+    return errors
 
 
-def getErrorsCalc(sudoku_id, sudoku):
-    unsolved_sudoku = firebase_ref.getRef().child("unsolved_sudoku").child(sudoku_id).child("numbers").get()
-    all_errors = merge(checkRows(unsolved_sudoku, sudoku),
-                       checkCols(unsolved_sudoku, sudoku),
-                       checkSquares(unsolved_sudoku, sudoku))
+def getErrorsCalc(sudoku):
+    all_errors = merge(checkRows(sudoku),
+                       checkCols(sudoku),
+                       checkSquares(sudoku))
     return all_errors
 
 
@@ -42,29 +42,23 @@ def merge(a, b, c):
     return a
 
 
-def checkRows(unsolved_sudoku, users_sudoku):
+def checkRows(users_sudoku):
     errors = []
     for i in range(9):
-        row = unsolved_sudoku[i]
-        for j in range(9):
-            if row[j] == 0:
-                row[j] = users_sudoku[j]
+        row = users_sudoku[i]
         for j in range(1, 10):
-            if row.count(i) + row.count(str(i)) > 1:
+            if row.count(j) + row.count(str(j)) > 1:
                 for k in range(row.count(str(j))):
                     errors.append((i, row.index(str(j))))
     return errors
 
 
-def checkCols(unsolved_sudoku, users_sudoku):
+def checkCols(users_sudoku):
     errors = []
     for i in range(9):
         col = [0 for _ in range(9)]
         for j in range(9):
-            if unsolved_sudoku[j][i] != 0:
-                col[j] = unsolved_sudoku[j][i]
-            else:
-                col[j] = users_sudoku[j][i]
+            col[j] = users_sudoku[j][i]
         for j in range(1, 10):
             if col.count(j) + col.count(str(j)) > 1:
                 for k in range(col.count(str(j))):
@@ -72,7 +66,7 @@ def checkCols(unsolved_sudoku, users_sudoku):
     return errors
 
 
-def checkSquares(unsolved_sudoku, users_sudoku):
+def checkSquares(users_sudoku):
     errors = []
     for i in range(3):
         for j in range(3):
@@ -80,17 +74,13 @@ def checkSquares(unsolved_sudoku, users_sudoku):
             ind = 0
             for row in range(3*i, 3*i+3):
                 for col in range(3*j, 3*j+3):
-                    if unsolved_sudoku[row][col] != 0:
-                        square[ind] = unsolved_sudoku[row][col]
-                        ind += 1
-                    else:
-                        square[ind] = users_sudoku[row][col]
-                        ind += 1
+                    square[ind] = users_sudoku[row][col]
+                    ind += 1
             for k in range(1, 10):
                 if square.count(k) + square.count(str(k)) > 1:
                     for m in range(square.count(str(k))):
                         ind = square.index(str(k))
-                        errors.append((i + ind // 3, i + ind % 3))
+                        errors.append((3*i + ind // 3, 3*i + ind % 3))
     return errors
 
 

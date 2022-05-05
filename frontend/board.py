@@ -1,6 +1,5 @@
 import kivy
 from kivy.app import App
-from kivy.core.window import Window
 from kivy.lang import Builder
 from kivy.properties import ObjectProperty
 from kivy.uix.boxlayout import BoxLayout
@@ -14,10 +13,12 @@ from kivy.clock import Clock
 import re
 
 import firebase_connection.firebase_ref
-from backend.sudoku_checks import checkDone
+from backend.sudoku_checks import checkDone, getErrorsDB, getErrorsCalc
 from firebase_connection import firebase_sudoku
 from firebase_connection import firebase_auth
 from frontend import levels
+
+from random import randint
 
 from kivy.uix.popup import Popup
 
@@ -30,6 +31,7 @@ sudoku_id = 0
 sudoku = firebase_sudoku.getUnsolved(sudoku_id)
 user_sudoku = firebase_sudoku.getUserSolution(firebase_auth.getUID(), sudoku_id)
 input_map = {}  # map of NumberInput objects created in order to update firebase
+displayed_error = (-1, -1)
 
 progress_bar = None
 game_window = None
@@ -124,7 +126,6 @@ class PopUpHints(FloatLayout):
 
 
 class PopUpPause(FloatLayout):
-
     def popPause(self):
         self.show = PopUpPause()
         self.show.ids.resume.bind(on_press=self.resume_click)
@@ -153,6 +154,7 @@ class NumberLabel(Label):  # custom label for displaying numbers in sudoku
 class NumberInput(TextInput):   # custom text input to verify user input (only one digit)
     id = ObjectProperty(None)
     def insert_text(self, substring, from_undo=False):
+        self.foreground_color = (0, 0, 0)
         self.text = ''
         pat = re.sub('[^1-9]$', '', substring)
         return super().insert_text(pat, from_undo=from_undo)
@@ -160,12 +162,17 @@ class NumberInput(TextInput):   # custom text input to verify user input (only o
 
 class BoardSmall(GridLayout):  # small square 3x3
     def create(self, row, col):
+        global displayed_error
         for i in range(3*row, 3*row+3):
             for j in range(3*col, 3*col+3):
                 if sudoku[i][j] == 0:
-                    n_input = NumberInput()
-                    if user_sudoku is not None and user_sudoku[i][j] != 0:
-                        n_input = NumberInput(text=str(user_sudoku[i][j]))
+                    n_input = NumberInput(foreground_color=(0, 0, 0))
+                    if user_sudoku is not None and user_sudoku[i][j] != 0 and user_sudoku[i][j] != "":
+                        if displayed_error == (i, j):
+                            n_input = NumberInput(text=str(user_sudoku[i][j]), foreground_color=(1, 0, 0))
+                            displayed_error = (-1, -1)
+                        else:
+                            n_input = NumberInput(text=str(user_sudoku[i][j]), foreground_color=(0, 0, 0))
 
                     input_map[(i, j)] = n_input
                     self.add_widget(n_input)
@@ -190,7 +197,6 @@ class Timer(Label):
         s = firebase_connection.firebase_ref.getRef().child('history').child(str(uid)).child(str(sudoku_id)).child('time').child('2').get()
         m = firebase_connection.firebase_ref.getRef().child('history').child(str(uid)).child(str(sudoku_id)).child('time').child('1').get()
         h = firebase_connection.firebase_ref.getRef().child('history').child(str(uid)).child(str(sudoku_id)).child('time').child('0').get()
-
         return h, m, s
 
     def update_time(self, uid, sudoku_id, hour, minute, second):
@@ -202,6 +208,7 @@ class Timer(Label):
 class ProgressBar():
     def get_progress_bar(self, uid, sudoku_id):
         return firebase_connection.firebase_ref.getRef().child('history').child(str(uid)).child(str(sudoku_id)).child('progress_bar').get()
+
     def add(self):
         self.value = self.value + .25
 
@@ -261,7 +268,6 @@ class GameWindow(Screen):
                 self.ids.counter.minute += 1
                 self.ids.counter.second = 0
 
-
         h = '0' + str(self.ids.counter.hour) if len(str(self.ids.counter.hour)) == 1 else str(self.ids.counter.hour)
         m = '0' + str(self.ids.counter.minute) if len(str(self.ids.counter.minute)) == 1 else str(self.ids.counter.minute)
         s = '0' + str(self.ids.counter.second) if len(str(self.ids.counter.second)) == 1 else str(self.ids.counter.second)
@@ -296,5 +302,27 @@ class GameWindow(Screen):
         self.board.remove_widget(self.s)
         self.clock.unschedule(self.update_label)
         App.get_running_app().root.current = "levelsWindow"
+
+    def displayErrorsDB(self):
+        global displayed_error
+        errors = getErrorsDB(sudoku_id, firebase_sudoku.getUserSolution(firebase_auth.getUID(), sudoku_id))
+        ind = 0
+        if len(errors) > 1:
+            ind = randint(0, len(errors)-1)
+        displayed_error = errors[ind]
+        self.board.remove_widget(self.s)
+        self.s = BoardSudoku().create()
+        self.board.add_widget(self.s)
+
+    def displayErrorsCalc(self):
+        global displayed_error
+        errors = getErrorsCalc(firebase_sudoku.getUserSolution(firebase_auth.getUID(), sudoku_id))
+        ind = 0
+        if len(errors) > 1:
+            ind = randint(0, len(errors)-1)
+        displayed_error = errors[ind]
+        self.board.remove_widget(self.s)
+        self.s = BoardSudoku().create()
+        self.board.add_widget(self.s)
 
 
