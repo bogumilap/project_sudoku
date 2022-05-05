@@ -1,4 +1,3 @@
-import datetime
 import kivy
 from kivy.app import App
 from kivy.core.window import Window
@@ -15,6 +14,7 @@ from kivy.clock import Clock
 import re
 
 import firebase_connection.firebase_ref
+from backend.sudoku_checks import checkDone
 from firebase_connection import firebase_sudoku
 from firebase_connection import firebase_auth
 from frontend import levels
@@ -34,17 +34,6 @@ input_map = {}  # map of NumberInput objects created in order to update firebase
 progress_bar = None
 game_window = None
 
-def checkDone():
-    global user_sudoku
-    user_sudoku = firebase_sudoku.getUserSolution(firebase_auth.getUID(), sudoku_id)
-    end = True
-    for i in range(9):
-        for j in range(9):
-            if sudoku[i][j] == 0 and (user_sudoku[i][j] == 0 or user_sudoku[i][j] == ""):
-                end = False
-    if end:
-        firebase_sudoku.finishGame(firebase_auth.getUID(), sudoku_id)
-
 
 def checkChanges(instance, value):
     global user_sudoku
@@ -60,9 +49,8 @@ def checkChanges(instance, value):
             else:
                 ProgressBar.subtract(progress_bar)
                 firebase_sudoku.update_progress_bar(firebase_auth.getUID(), sudoku_id, ProgressBar.get_currect_value(progress_bar))
+    checkDone(firebase_auth.getUID(), sudoku_id, sudoku)
 
-
-    checkDone()
 
 class DataTable(BoxLayout):
     def __init__(self,table='', **kwargs):
@@ -86,6 +74,7 @@ class DataTable(BoxLayout):
 
         self.ids.table_floor_layout.cols = self.columns
         self.ids.table_floor.data = table_data
+
 
 class PopUpHints(FloatLayout):
     row = ObjectProperty(None)
@@ -156,6 +145,7 @@ class PopUpPause(FloatLayout):
         self.window.dismiss()
         game_window.exit_game()
 
+
 class NumberLabel(Label):  # custom label for displaying numbers in sudoku
     pass
 
@@ -193,6 +183,7 @@ class BoardSudoku(GridLayout):  # whole sudoku board, made of 9 BoardSmall
                 box = BoardSmall().create(i, j)
                 self.add_widget(box)
         return self
+
 
 class Timer(Label):
     def get_time(self, uid, sudoku_id):
