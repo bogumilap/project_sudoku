@@ -84,5 +84,9 @@ def checkSquares(users_sudoku):
     return errors
 
 
-
+def findValInMap(map, val):
+    for k, v in map.items():
+        if v == val:
+            return k
+    return -1
 
