@@ -101,6 +101,8 @@ class PopUpHints(FloatLayout):
 
     def get_hint(self, obj):
         num = firebase_sudoku.get_hint(sudoku_id, firebase_auth.getUID(), self.show.ids.row.text, self.show.ids.column.text)
+        game_window.time.update_time(firebase_auth.getUID(), sudoku_id, game_window.ids.counter.hour, game_window.ids.counter.minute,game_window.ids.counter.second)
+        game_window.clock.unschedule(game_window.update_label)
         game_window.refresh()
         self.window.dismiss()
 
@@ -126,6 +128,8 @@ class PopUpHints(FloatLayout):
         firebase_connection.firebase_ref.getRef().child('history').child(str(firebase_auth.getUID())) \
             .child(str(sudoku_id)).child('database').child(str(data_size)).set(database_data)
 
+        game_window.time.update_time(firebase_auth.getUID(), sudoku_id, game_window.ids.counter.hour, game_window.ids.counter.minute,game_window.ids.counter.second)
+        game_window.clock.unschedule(game_window.update_label)
         game_window.refresh()
         self.window.dismiss()
 
