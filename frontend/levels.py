@@ -24,13 +24,16 @@ class menuWindow(Screen):
         menu = firebase_sudoku.getSudokuWithLevel(level)
 
         grid = GridLayout(rows=7, row_force_default=True, row_default_height=100, cols=7, col_force_default=True,
-                          col_default_width=100, spacing=(3,3), pos_hint={"top": 0.9})
+                          col_default_width=100, spacing=(3,3), pos_hint={"top": 0.87})
         for i in range(len(menu)):
             b = Button(text="sudoku "+str(i+1))
             b.bind(on_release=showSudoku)
             grid.add_widget(b)
 
         self.add_widget(grid)
+
+    def returning(self):
+        App.get_running_app().root.current = "levelsWindow"
 
 
 def showSudoku(arg):

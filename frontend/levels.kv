@@ -49,12 +49,20 @@
         Rectangle:
             pos: self.pos
             size: self.size
+
+    Button:
+        text: "GO BACK"
+        size_hint: 0.1, 0.05
+        pos_hint: {"top" : 1}
+        on_release:
+            root.returning()
+
     Label:
         text : "SELECT SUDOKU:"
         color: '111111'
         bold: True
         size_hint: 0.2, 0.1
-        pos_hint: {"top" : 1}
+        pos_hint: {"top" : 0.97}
 
 
 <Button>:
