@@ -13,9 +13,10 @@ from kivy.clock import Clock
 import re
 
 import firebase_connection.firebase_ref
-from backend.sudoku_checks import checkDone, getErrorsDB, getErrorsCalc
+from backend.sudoku_checks import checkDone, getErrorsDB, getErrorsCalc, findValInMap
 from firebase_connection import firebase_sudoku
 from firebase_connection import firebase_auth
+from firebase_connection.firebase_sudoku import getUserPossible, updateUserPossible
 from frontend import levels
 
 from random import randint
@@ -38,20 +39,87 @@ game_window = None
 
 
 def checkChanges(instance, value):
-    global user_sudoku
+    global user_sudoku, input_map
     user_sudoku = firebase_sudoku.getUserSolution(firebase_auth.getUID(), sudoku_id)
+    i, j = findValInMap(input_map, instance)
+    firebase_sudoku.updateUserSolution(firebase_auth.getUID(), sudoku_id, i, j, value)
 
-    for (i, j) in input_map.keys():
-        num = input_map.get((i, j))
-        if str(user_sudoku[i][j]) != num.text:
-            firebase_sudoku.updateUserSolution(firebase_auth.getUID(), sudoku_id, i, j, num.text)
-            if num.text != "":
-                ProgressBar.add(progress_bar)
-                firebase_sudoku.update_progress_bar(firebase_auth.getUID(), sudoku_id, ProgressBar.get_currect_value(progress_bar))
-            else:
-                ProgressBar.subtract(progress_bar)
-                firebase_sudoku.update_progress_bar(firebase_auth.getUID(), sudoku_id, ProgressBar.get_currect_value(progress_bar))
+    if value != "":
+        ProgressBar.add(progress_bar)
+        firebase_sudoku.update_progress_bar(firebase_auth.getUID(), sudoku_id, ProgressBar.get_currect_value(progress_bar))
+    else:
+        ProgressBar.subtract(progress_bar)
+        firebase_sudoku.update_progress_bar(firebase_auth.getUID(), sudoku_id, ProgressBar.get_currect_value(progress_bar))
     checkDone(firebase_auth.getUID(), sudoku_id, sudoku)
+
+
+class NumberLabel(Label):  # custom label for displaying numbers in sudoku
+    pass
+
+
+class NumberInput(TextInput):   # custom text input to verify user input (only one digit)
+    id = ObjectProperty(None)
+
+    def insert_text(self, substring, from_undo=False):
+        self.foreground_color = (0, 0, 0)
+        self.text = ''
+        pat = re.sub('[^1-9]$', '', substring)
+        return super().insert_text(pat, from_undo=from_undo)
+
+    def showPossible(self, value):
+        i, j = findValInMap(input_map, self)
+        ListPopup().create(i, j)
+
+
+class ListPopup(FloatLayout):
+    i = -1
+    j = -1
+    text = ""
+
+    def create(self, i, j):
+        self.show = ListPopup()
+        self.i = i
+        self.j = j
+        inp = TextInput(text=getUserPossible(firebase_auth.getUID(), sudoku_id, i, j))
+        inp.bind(text=self.save)
+        self.window = Popup(title="your possible numbers", content=inp, size_hint=(None, None), size=(300, 300))
+        self.window.open()
+
+    def save(self, instance, value):
+        updateUserPossible(firebase_auth.getUID(), sudoku_id, self.i, self.j, value)
+
+
+class BoardSmall(GridLayout):  # small square 3x3
+    def create(self, row, col):
+        global displayed_error
+        for i in range(3*row, 3*row+3):
+            for j in range(3*col, 3*col+3):
+                if sudoku[i][j] == 0:
+                    n_input = NumberInput(foreground_color=(0, 0, 0))
+                    if user_sudoku is not None and user_sudoku[i][j] != 0 and user_sudoku[i][j] != "":
+                        if displayed_error == (i, j):
+                            n_input = NumberInput(text=str(user_sudoku[i][j]), foreground_color=(1, 0, 0))
+                            displayed_error = (-1, -1)
+                        else:
+                            n_input = NumberInput(text=str(user_sudoku[i][j]), foreground_color=(0, 0, 0))
+
+                    input_map[(i, j)] = n_input
+                    n_input.bind(on_double_tap=n_input.showPossible)
+                    self.add_widget(n_input)
+                    n_input.bind(text=checkChanges)
+
+                else:
+                    self.add_widget(NumberLabel(text=str(sudoku[i][j]), color=(0, 0, 0)))
+        return self
+
+
+class BoardSudoku(GridLayout):  # whole sudoku board, made of 9 BoardSmall
+    def create(self):
+        for i in range(3):
+            for j in range(3):
+                box = BoardSmall().create(i, j)
+                self.add_widget(box)
+        return self
 
 
 class DataTable(BoxLayout):
@@ -145,51 +213,6 @@ class PopUpPause(FloatLayout):
     def exit_click(self, obj):
         self.window.dismiss()
         game_window.exit_game()
-
-
-class NumberLabel(Label):  # custom label for displaying numbers in sudoku
-    pass
-
-
-class NumberInput(TextInput):   # custom text input to verify user input (only one digit)
-    id = ObjectProperty(None)
-    def insert_text(self, substring, from_undo=False):
-        self.foreground_color = (0, 0, 0)
-        self.text = ''
-        pat = re.sub('[^1-9]$', '', substring)
-        return super().insert_text(pat, from_undo=from_undo)
-
-
-class BoardSmall(GridLayout):  # small square 3x3
-    def create(self, row, col):
-        global displayed_error
-        for i in range(3*row, 3*row+3):
-            for j in range(3*col, 3*col+3):
-                if sudoku[i][j] == 0:
-                    n_input = NumberInput(foreground_color=(0, 0, 0))
-                    if user_sudoku is not None and user_sudoku[i][j] != 0 and user_sudoku[i][j] != "":
-                        if displayed_error == (i, j):
-                            n_input = NumberInput(text=str(user_sudoku[i][j]), foreground_color=(1, 0, 0))
-                            displayed_error = (-1, -1)
-                        else:
-                            n_input = NumberInput(text=str(user_sudoku[i][j]), foreground_color=(0, 0, 0))
-
-                    input_map[(i, j)] = n_input
-                    self.add_widget(n_input)
-                    n_input.bind(text=checkChanges)
-
-                else:
-                    self.add_widget(NumberLabel(text=str(sudoku[i][j]), color=(0, 0, 0)))
-        return self
-
-
-class BoardSudoku(GridLayout):  # whole sudoku board, made of 9 BoardSmall
-    def create(self):
-        for i in range(3):
-            for j in range(3):
-                box = BoardSmall().create(i, j)
-                self.add_widget(box)
-        return self
 
 
 class Timer(Label):

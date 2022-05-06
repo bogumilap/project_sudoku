@@ -46,6 +46,18 @@ def updateUserSolution(uid, sudoku_id, x, y, val):  # insert number to user's ga
     return firebase_ref.getRef().child('history').child(str(uid)).child(str(sudoku_id)).child("numbers").set(sudoku)
 
 
+def getUserPossible(uid, sudoku_id, x, y):
+    result = firebase_ref.getRef().child("history").child(uid).child(str(sudoku_id)).child("possible").child(str(x)).child(str(y)).get()
+    if result.count(0) > 0:
+        result.remove(0)
+    return str(result)[1:len(str(result))-1]
+
+
+def updateUserPossible(uid, sudoku_id, x, y, vals):
+    v = vals.split(", ")
+    firebase_ref.getRef().child("history").child(uid).child(str(sudoku_id)).child("possible").child(str(x)).child(str(y)).set(v)
+
+
 def finishGame(uid, sudoku_id):  # update user's statistics and total points
     user_data = firebase_ref.getRef().child('users').child(str(uid))
     game_data = firebase_ref.getRef().child('history').child(str(uid)).child(str(sudoku_id))
