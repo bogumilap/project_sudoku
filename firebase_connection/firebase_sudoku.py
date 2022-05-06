@@ -28,7 +28,8 @@ def getUserSolution(uid, sudoku_id):
             'used_hints': 0,
             'used_corrections': 0,
             'progress_bar': 0.0,
-            'database': []
+            'database': [],
+            'possible': [[[0 for _ in range(9)] for _ in range(9)] for _ in range(9)]
         }
         history.set(data)
         no_played = firebase_ref.getRef().child('users').child(uid).child('no_played').get()  # update user statistics
