@@ -159,6 +159,6 @@ def reset_game(uid, sudoku_id):
     firebase_ref.getRef().child('history').child(str(uid)).child(str(sudoku_id)).child('used_corrections').set(0)
     firebase_ref.getRef().child('history').child(str(uid)).child(str(sudoku_id)).child('used_hints').set(0)
     firebase_ref.getRef().child('history').child(str(uid)).child(str(sudoku_id)).child('possible')\
-        .set([[[0 for _ in range(9)] for _ in range(9)] for _ in range(9)])
+        .set([[[0] for _ in range(9)] for _ in range(9)])
 
 
