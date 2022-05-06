@@ -40,7 +40,7 @@ game_window = None
 
 
 def checkChanges(instance, value):
-    global user_sudoku, input_map
+    global user_sudoku
     user_sudoku = firebase_sudoku.getUserSolution(firebase_auth.getUID(), sudoku_id)
     i, j = findValInMap(input_map, instance)
     firebase_sudoku.updateUserSolution(firebase_auth.getUID(), sudoku_id, i, j, value)
@@ -51,6 +51,7 @@ def checkChanges(instance, value):
     else:
         ProgressBar.subtract(progress_bar)
         firebase_sudoku.update_progress_bar(firebase_auth.getUID(), sudoku_id, ProgressBar.get_currect_value(progress_bar))
+
     checkDone(firebase_auth.getUID(), sudoku_id, sudoku)
 
 
@@ -146,8 +147,10 @@ class DataTable(BoxLayout):
         self.ids.table_floor_layout.cols = self.columns
         self.ids.table_floor.data = table_data
 
+
 class CustomDropDown(DropDown):
     pass
+
 
 class PopUpHints(FloatLayout):
     def popGet(self):
@@ -194,7 +197,6 @@ class PopUpHints(FloatLayout):
         self.mainbutton_column.bind(on_release=dropdown_column.open)
         dropdown_column.bind(on_select=self.select_text_column)
 
-
         btnCount = Button(text="SHOW", size_hint=(0.6, 0.2), pos_hint={"x": 0.2, "top": 0.3})
         self.show.add_widget(btnCount)
         self.window = Popup(title="Show all possible number!", content=self.show, size_hint=(None, None), size=(300, 300))
@@ -231,6 +233,7 @@ class PopUpHints(FloatLayout):
 
     def select_text_column_count(self, instance, x):
         self.mainbutton_count_column.text = x
+
 
 class PopUpPause(FloatLayout):
     def popPause(self):
@@ -368,23 +371,21 @@ class GameWindow(Screen):
     def displayErrorsDB(self):
         global displayed_error
         errors = getErrorsDB(sudoku_id, firebase_sudoku.getUserSolution(firebase_auth.getUID(), sudoku_id))
-        ind = 0
-        if len(errors) > 1:
-            ind = randint(0, len(errors)-1)
-        displayed_error = errors[ind]
-        self.board.remove_widget(self.s)
-        self.s = BoardSudoku().create()
-        self.board.add_widget(self.s)
+        if len(errors) > 0:
+            ind = 0
+            if len(errors) > 1:
+                ind = randint(0, len(errors)-1)
+            displayed_error = errors[ind]
+            self.refresh()
 
     def displayErrorsCalc(self):
         global displayed_error
         errors = getErrorsCalc(firebase_sudoku.getUserSolution(firebase_auth.getUID(), sudoku_id))
-        ind = 0
-        if len(errors) > 1:
-            ind = randint(0, len(errors)-1)
-        displayed_error = errors[ind]
-        self.board.remove_widget(self.s)
-        self.s = BoardSudoku().create()
-        self.board.add_widget(self.s)
+        if len(errors) > 0:
+            ind = 0
+            if len(errors) > 1:
+                ind = randint(0, len(errors)-1)
+            displayed_error = errors[ind]
+            self.refresh()
 
 

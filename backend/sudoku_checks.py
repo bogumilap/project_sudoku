@@ -8,7 +8,7 @@ def checkDone(uid, sudoku_id, sudoku):
         for j in range(9):
             if sudoku[i][j] == 0 and (user_sudoku[i][j] == 0 or user_sudoku[i][j] == ""):
                 end = False
-    if end and len(getErrorsCalc(sudoku_id, user_sudoku)) == 0:
+    if end and len(getErrorsCalc(user_sudoku)) == 0:
         firebase_sudoku.finishGame(uid, sudoku_id)
 
 
