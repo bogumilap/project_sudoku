@@ -194,36 +194,17 @@
 
 # pop up window
 <PopUpHints>:
-    row: row
-    column: column
-
 	Label:
 		text : "Enter row:"
 		size_hint : 0.2, 0.1
 		pos_hint : {"x" : 0.4, "top" : 0.9}
 		opacity: 0.5
 
-	TextInput:
-        id : row
-        multiline : False
-        padding: 0, 0
-        size_hint : 0.2, 0.15
-        pos_hint : {"x" : 0.4, "top" : 0.8}
-        opacity: 0.7
-
     Label:
 		text : "Enter column:"
 		size_hint : 0.2, 0.1
 		pos_hint : {"x" : 0.4, "top" : 0.6}
 		opacity: 0.5
-
-	TextInput:
-        id : column
-        multiline : False
-        size_hint : 0.2, 0.15
-        pos_hint : {"x" : 0.4, "top" : 0.5}
-        opacity: 0.7
-
 
 <DataTable>:
     id: table_count
@@ -272,4 +253,49 @@
 		pos_hint : {"x" : 0, "top" : 0.3}
         text: "Exit"
 
-
+<CustomDropDown>:
+    Button:
+        text: '0'
+        size_hint_y: None
+        height: 30
+        on_release: root.select('0')
+    Button:
+        text: '1'
+        size_hint_y: None
+        height: 30
+        on_release: root.select('1')
+    Button:
+        text: '2'
+        size_hint_y: None
+        height: 30
+        on_release: root.select('2')
+    Button:
+        text: '3'
+        size_hint_y: None
+        height: 30
+        on_release: root.select('3')
+    Button:
+        text: '4'
+        size_hint_y: None
+        height: 30
+        on_release: root.select('4')
+    Button:
+        text: '5'
+        size_hint_y: None
+        height: 30
+        on_release: root.select('5')
+    Button:
+        text: '6'
+        size_hint_y: None
+        height: 30
+        on_release: root.select('6')
+    Button:
+        text: '7'
+        size_hint_y: None
+        height: 30
+        on_release: root.select('7')
+    Button:
+        text: '8'
+        size_hint_y: None
+        height: 30
+        on_release: root.select('8')

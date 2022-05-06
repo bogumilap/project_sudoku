@@ -11,6 +11,7 @@ from kivy.uix.screenmanager import Screen
 from kivy.uix.textinput import TextInput
 from kivy.clock import Clock
 import re
+from kivy.uix.dropdown import DropDown
 
 import firebase_connection.firebase_ref
 from backend.sudoku_checks import checkDone, getErrorsDB, getErrorsCalc, findValInMap
@@ -145,13 +146,26 @@ class DataTable(BoxLayout):
         self.ids.table_floor_layout.cols = self.columns
         self.ids.table_floor.data = table_data
 
+class CustomDropDown(DropDown):
+    pass
 
 class PopUpHints(FloatLayout):
-    row = ObjectProperty(None)
-    column = ObjectProperty(None)
-
     def popGet(self):
         self.show = PopUpHints()
+
+        self.mainbutton_row = Button(text="Row", size_hint=(0.2, 0.1), pos_hint={"x": 0.4, "top": 0.8})
+        self.show.add_widget(self.mainbutton_row)
+        dropdown_row = CustomDropDown()
+        self.mainbutton_row.bind(on_release=dropdown_row.open)
+        dropdown_row.bind(on_select=self.select_text_row)
+
+        self.mainbutton_column = Button(text="Column", size_hint=(0.2, 0.1), pos_hint={"x": 0.4, "top": 0.5})
+        self.show.add_widget(self.mainbutton_column)
+        dropdown_column = CustomDropDown()
+        self.mainbutton_column.bind(on_release=dropdown_column.open)
+        dropdown_column.bind(on_select=self.select_text_column)
+
+
         btn1 = Button(text="GET", size_hint=(0.6, 0.2), pos_hint={"x": 0.2, "top": 0.3})
         self.show.add_widget(btn1)
         self.window = Popup(title="Get the hint!", content=self.show, size_hint=(None, None), size=(300, 300))
@@ -159,7 +173,7 @@ class PopUpHints(FloatLayout):
         self.window.open()
 
     def get_hint(self, obj):
-        num = firebase_sudoku.get_hint(sudoku_id, firebase_auth.getUID(), self.show.ids.row.text, self.show.ids.column.text)
+        num = firebase_sudoku.get_hint(sudoku_id, firebase_auth.getUID(), self.mainbutton_row.text, self.mainbutton_column.text)
         game_window.time.update_time(firebase_auth.getUID(), sudoku_id, game_window.ids.counter.hour, game_window.ids.counter.minute,game_window.ids.counter.second)
         game_window.clock.unschedule(game_window.update_label)
         game_window.refresh()
@@ -167,6 +181,20 @@ class PopUpHints(FloatLayout):
 
     def popCount(self):
         self.show = PopUpHints()
+
+        self.mainbutton_row = Button(text="Row", size_hint=(0.2, 0.1), pos_hint={"x": 0.4, "top": 0.8})
+        self.show.add_widget(self.mainbutton_row)
+        dropdown_row = CustomDropDown()
+        self.mainbutton_row.bind(on_release=dropdown_row.open)
+        dropdown_row.bind(on_select=self.select_text_row)
+
+        self.mainbutton_column = Button(text="Column", size_hint=(0.2, 0.1), pos_hint={"x": 0.4, "top": 0.5})
+        self.show.add_widget(self.mainbutton_column)
+        dropdown_column = CustomDropDown()
+        self.mainbutton_column.bind(on_release=dropdown_column.open)
+        dropdown_column.bind(on_select=self.select_text_column)
+
+
         btnCount = Button(text="SHOW", size_hint=(0.6, 0.2), pos_hint={"x": 0.2, "top": 0.3})
         self.show.add_widget(btnCount)
         self.window = Popup(title="Show all possible number!", content=self.show, size_hint=(None, None), size=(300, 300))
@@ -174,14 +202,14 @@ class PopUpHints(FloatLayout):
         self.window.open()
 
     def get_count(self, obj):
-        res = firebase_sudoku.get_count(sudoku_id, firebase_auth.getUID(), self.show.ids.row.text, self.show.ids.column.text)
+        res = firebase_sudoku.get_count(sudoku_id, firebase_auth.getUID(), self.mainbutton_row.text, self.mainbutton_column.text)
         data_size = len(firebase_connection.firebase_ref.getRef().child('history').child(str(firebase_auth.getUID()))\
             .child(str(sudoku_id)).child('database').get())
 
         database_data = {
-            'column': self.show.ids.column.text,
+            'column': self.mainbutton_column.text,
             'numbers': res,
-            'row': self.show.ids.row.text,
+            'row': self.mainbutton_row.text
         }
 
         firebase_connection.firebase_ref.getRef().child('history').child(str(firebase_auth.getUID())) \
@@ -192,6 +220,17 @@ class PopUpHints(FloatLayout):
         game_window.refresh()
         self.window.dismiss()
 
+    def select_text_row(self, instance, x):
+        self.mainbutton_row.text = x
+
+    def select_text_column(self, instance, x):
+        self.mainbutton_column.text = x
+
+    def select_text_row_count(self, instance, x):
+        self.mainbutton_count_row.text = x
+
+    def select_text_column_count(self, instance, x):
+        self.mainbutton_count_column.text = x
 
 class PopUpPause(FloatLayout):
     def popPause(self):
