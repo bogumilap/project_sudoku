@@ -28,7 +28,7 @@ def getUserSolution(uid, sudoku_id):
             'used_hints': 0,
             'used_corrections': 0,
             'progress_bar': 0.0,
-            'database': "",
+            'hints': "",
             'possible': [[[0 for _ in range(9)] for _ in range(9)] for _ in range(9)]
         }
         history.set(data)
@@ -150,7 +150,7 @@ def update_progress_bar(uid, sudoku_id, value):
 def reset_game(uid, sudoku_id):
     unsolved_sudoku = firebase_ref.getRef().child('unsolved_sudoku').child(str(sudoku_id)).get()
     firebase_ref.getRef().child('history').child(str(uid)).child(str(sudoku_id)).set(unsolved_sudoku)
-    firebase_ref.getRef().child('history').child(str(uid)).child(str(sudoku_id)).child('database').set("")
+    firebase_ref.getRef().child('history').child(str(uid)).child(str(sudoku_id)).child('hints').set("")
     firebase_ref.getRef().child('history').child(str(uid)).child(str(sudoku_id)).child('game_points').set(0)
     firebase_ref.getRef().child('history').child(str(uid)).child(str(sudoku_id)).child('progress_bar').set(0)
     firebase_ref.getRef().child('history').child(str(uid)).child(str(sudoku_id)).child('time').child(str(0)).set(0)

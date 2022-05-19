@@ -129,7 +129,7 @@ class DataTable(BoxLayout):
         super().__init__(**kwargs)
 
         data = firebase_connection.firebase_ref.getRef().child('history').child(str(firebase_auth.getUID()))\
-            .child(str(sudoku_id)).child('database')
+            .child(str(sudoku_id)).child('hints')
 
         column_titles = ["lp", "row", "column", "numbers"]
         self.columns = 4
@@ -206,16 +206,16 @@ class PopUpHints(FloatLayout):
     def get_count(self, obj):
         res = firebase_sudoku.get_count(sudoku_id, firebase_auth.getUID(), self.mainbutton_row.text, self.mainbutton_column.text)
         data_size = len(firebase_connection.firebase_ref.getRef().child('history').child(str(firebase_auth.getUID()))\
-            .child(str(sudoku_id)).child('database').get())
+            .child(str(sudoku_id)).child('hints').get())
 
-        database_data = {
+        hints_data = {
             'column': self.mainbutton_column.text,
             'numbers': res,
             'row': self.mainbutton_row.text
         }
 
         firebase_connection.firebase_ref.getRef().child('history').child(str(firebase_auth.getUID())) \
-            .child(str(sudoku_id)).child('database').child(str(data_size)).set(database_data)
+            .child(str(sudoku_id)).child('hints').child(str(data_size)).set(hints_data)
 
         game_window.time.update_time(firebase_auth.getUID(), sudoku_id, game_window.ids.counter.hour, game_window.ids.counter.minute,game_window.ids.counter.second)
         game_window.clock.unschedule(game_window.update_label)
