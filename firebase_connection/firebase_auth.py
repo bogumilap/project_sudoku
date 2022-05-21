@@ -39,6 +39,7 @@ def signup(nick, email, password):
     try:
         user = auth.create_user_with_email_and_password(email, password)
         firebase_insert.addUser(user.get('localId'), nick, email)  # creating position in 'users' collection in db
+        print(user.get('localId'))
         firebase_ref.getRef().child('history').push(user.get('localId'))  # creating document for user's history of play
         uid = user.get('localId')
         return user.get('localId')

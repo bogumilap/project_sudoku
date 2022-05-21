@@ -97,48 +97,86 @@ def get_hint(id, history_id, square, field):
     return num
 
 
+def check_column_range(column_num):
+    column_range_begin = None
+    column_range_end = None
+
+    if 0 <= column_num <= 2:
+        column_range_begin = 0
+        column_range_end = 3
+    elif 3 <= column_num <= 5:
+        column_range_begin = 3
+        column_range_end = 6
+    elif 6 <= column_num <= 8:
+        column_range_begin = 6
+        column_range_end = 9
+    else:
+        print("Incorrect column num")
+
+    return column_range_begin, column_range_end
+
+
 def get_count(id, history_id, row_arg, column_arg):
-    int_row_arg = int(row_arg)
-    int_col_arg = int(column_arg)
+    column = [False] * 10
+    row = [False] * 10
+    box = [False] * 10
 
-    column = [False] * 9
-    row = [False] * 9
-    box = [False] * 9
-
-    users_sudoku = firebase_ref.getRef().child('history').child(str(history_id)).child(str(id)).child('numbers').get()
-    solved_sudoku = firebase_ref.getRef().child('solved_sudoku').child(str(id)).child('numbers').get()
     # column and row
     for i in range(9):
-        column_num = users_sudoku[i][int_col_arg]
-        row_num = users_sudoku[int_row_arg][i]
+        column_num = firebase_ref.getRef().child('history').child(str(history_id)).child(str(id)).child(
+            'numbers').child(str(i)).child(str(column_arg)).get()
+        row_num = firebase_ref.getRef().child('history').child(str(history_id)).child(str(id)).child('numbers').child(
+            row_arg).child(str(i)).get()
         if column_num != "":
-            solved_column_num = solved_sudoku[i][int_col_arg]
-            if column_num != 0 and int(column_num) == solved_column_num:
-                column[solved_column_num-1] = True
+            solved_column_num = firebase_ref.getRef().child('solved_sudoku').child(str(id)).child('numbers').child(
+                str(i)).child(column_arg).get()
+            if (column_num != 0 and int(column_num) == solved_column_num) or column_num == 0:
+                column[solved_column_num] = True
 
         if row_num != "":
-            solved_row_num = solved_sudoku[int_row_arg][i]
-            if row_num != 0 and int(row_num) == solved_row_num:
-                row[solved_row_num-1] = True
+            solved_row_num = firebase_ref.getRef().child('solved_sudoku').child(str(id)).child('numbers').child(
+                row_arg).child(str(i)).get()
+            if (row_num != 0 and int(row_num) == solved_row_num) or row_num == 0:
+                row[solved_row_num] = True
 
     # box
-    row_range_begin = int_row_arg // 3
-    column_range_begin = int_col_arg // 3
-    row_range_end = row_range_begin + 3
-    column_range_end = column_range_begin + 3
+    row_range_begin = None
+    column_range_begin = None
+    row_range_end = None
+    column_range_end = None
+
+    if 0 <= int(row_arg) <= 2:
+        row_range_begin = 0
+        row_range_end = 3
+
+        column_range_begin, column_range_end = check_column_range(int(column_arg))
+
+    elif 3 <= int(row_arg) <= 5:
+        row_range_begin = 3
+        row_range_end = 6
+
+        column_range_begin, column_range_end = check_column_range(int(column_arg))
+
+    elif 6 <= int(row_arg) <= 8:
+        row_range_begin = 6
+        row_range_end = 9
+
+        column_range_begin, column_range_end = check_column_range(int(column_arg))
 
     for i in range(row_range_begin, row_range_end):
         for j in range(column_range_begin, column_range_end):
-            box_num = users_sudoku[i][j]
+            box_num = firebase_ref.getRef().child('history').child(str(history_id)).child(str(id)).child(
+                'numbers').child(str(i)).child(str(j)).get()
             if box_num != "":
-                solved_box_num = solved_sudoku[i][j]
-                if box_num != 0 and int(box_num) == solved_box_num:
-                    box[solved_box_num-1] = True
+                solved_box_num = firebase_ref.getRef().child('solved_sudoku').child(str(id)).child(
+                    'numbers').child(str(i)).child(str(j)).get()
+                if (box_num != 0 and int(box_num) == solved_box_num) or box_num == 0:
+                    box[solved_box_num] = True
 
     res = []
-    for i in range(9):
-        if not row[i] and not column[i] and not box[i]:
-            res.append(i+1)
+    for i in range(1, 10):
+        if row[i] == False and column[i] == False and box[i] == False:
+            res.append(i)
 
     return res
 
@@ -158,7 +196,5 @@ def reset_game(uid, sudoku_id):
     firebase_ref.getRef().child('history').child(str(uid)).child(str(sudoku_id)).child('time').child(str(2)).set(0)
     firebase_ref.getRef().child('history').child(str(uid)).child(str(sudoku_id)).child('used_corrections').set(0)
     firebase_ref.getRef().child('history').child(str(uid)).child(str(sudoku_id)).child('used_hints').set(0)
-    firebase_ref.getRef().child('history').child(str(uid)).child(str(sudoku_id)).child('possible')\
-        .set([[[0] for _ in range(9)] for _ in range(9)])
 
 
