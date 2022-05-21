@@ -40,7 +40,8 @@ def getUserSolution(uid, sudoku_id):
 
 def updateUserSolution(uid, sudoku_id, x, y, val):  # insert number to user's game history
     sudoku = getUserSolution(uid, sudoku_id)
-    if sudoku[x][y] != "" and sudoku[x][y] != 0:   # update points
+    print(sudoku[x][y])
+    if sudoku[x][y] == "" or sudoku[x][y] == 0:   # update points
         points = firebase_ref.getRef().child('history').child(str(uid)).child(str(sudoku_id)).child("game_points")
         points.set(points.get() + 50)
     sudoku[x][y] = val
