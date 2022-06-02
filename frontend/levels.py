@@ -3,9 +3,11 @@ from kivy.app import App
 from kivy.lang import Builder
 from kivy.uix.button import Button
 from kivy.uix.gridlayout import GridLayout
+from kivy.uix.label import Label
 from kivy.uix.screenmanager import Screen
 
 from firebase_connection import firebase_sudoku
+from firebase_connection import firebase_ranking
 kivy.require('2.1.0')
 
 level = 1
@@ -13,6 +15,13 @@ selected_sudoku = 0
 
 
 class levelsWindow(Screen):
+    def build(self):
+        ranking = firebase_ranking.getRanking()
+        for i in range(5):
+            pos = ranking[i]
+            text = str(i+1) + ". " + pos[0] + "   " + str(pos[1])
+            self.ids.ranking.add_widget(Label(text=text, color='111111'))
+
     def changeLevel(self, lvl):
         global level
         level = lvl
