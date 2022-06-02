@@ -40,7 +40,6 @@ progress_bar = None
 game_window = None
 
 
-
 def refresh_handler(arg):
     global multiplayer_changes
     multiplayer_changes = True
@@ -51,7 +50,7 @@ def get_history_id() -> str:
 
 
 def checkChanges(instance, value):
-    global user_sudoku, input_map
+    global user_sudoku
     user_sudoku = firebase_sudoku.getUserSolution(get_history_id(), sudoku_id, is_multiplayer)
     i, j = findValInMap(input_map, instance)
     firebase_sudoku.updateUserSolution(get_history_id(), sudoku_id, i, j, value, is_multiplayer)
@@ -62,6 +61,7 @@ def checkChanges(instance, value):
     else:
         ProgressBar.subtract(progress_bar)
         firebase_sudoku.update_progress_bar(get_history_id(), sudoku_id, ProgressBar.get_currect_value(progress_bar))
+
     checkDone(get_history_id(), sudoku_id, sudoku, is_multiplayer)
 
 
@@ -216,7 +216,7 @@ class PopUpHints(FloatLayout):
 
         btnCount = Button(text="SHOW", size_hint=(0.6, 0.2), pos_hint={"x": 0.2, "top": 0.3})
         self.show.add_widget(btnCount)
-        self.window = Popup(title="Show all possible number!", content=self.show, size_hint=(None, None),
+        self.window = Popup(title="Show all possible numbers!", content=self.show, size_hint=(None, None),
                             size=(300, 300))
         btnCount.bind(on_press=self.get_count)
         self.window.open()
