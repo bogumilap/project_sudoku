@@ -14,7 +14,7 @@ def getLevel(id):
     return firebase_ref.getRef().child('solved_sudoku').child(str(id)).child("level").get()
 
 
-def getUserSolution(uid, sudoku_id):
+def getUserSolution(uid, sudoku_id, is_multiplayer):
     if uid is None:
         return
 
@@ -33,13 +33,14 @@ def getUserSolution(uid, sudoku_id):
         }
         history.set(data)
         no_played = firebase_ref.getRef().child('users').child(uid).child('no_played').get()  # update user statistics
-        firebase_ref.getRef().child('users').child(uid).child('no_played').set(no_played + 1)
+        if not is_multiplayer:
+            firebase_ref.getRef().child('users').child(uid).child('no_played').set(no_played + 1)
 
     return history.child('numbers').get()
 
 
-def updateUserSolution(uid, sudoku_id, x, y, val):  # insert number to user's game history
-    sudoku = getUserSolution(uid, sudoku_id)
+def updateUserSolution(uid, sudoku_id, x, y, val, is_multiplayer):  # insert number to user's game history
+    sudoku = getUserSolution(uid, sudoku_id, is_multiplayer)
     print(sudoku[x][y])
     if sudoku[x][y] == "" or sudoku[x][y] == 0:   # update points
         points = firebase_ref.getRef().child('history').child(str(uid)).child(str(sudoku_id)).child("game_points")

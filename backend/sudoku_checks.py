@@ -1,8 +1,8 @@
 from firebase_connection import firebase_sudoku, firebase_ref
 
 
-def checkDone(uid, sudoku_id, sudoku):
-    user_sudoku = firebase_sudoku.getUserSolution(uid, sudoku_id)
+def checkDone(uid, sudoku_id, sudoku, is_multiplayer):
+    user_sudoku = firebase_sudoku.getUserSolution(uid, sudoku_id, is_multiplayer)
     end = True
     for i in range(9):
         for j in range(9):

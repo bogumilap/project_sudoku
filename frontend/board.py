@@ -27,17 +27,19 @@ from kivy.uix.popup import Popup
 kivy.require('2.1.0')
 kv = Builder.load_file('./board.kv')
 
+is_multiplayer = True
+multiplayer_changes = False
+
 sudoku_id = 0
 sudoku = firebase_sudoku.getUnsolved(sudoku_id)
-user_sudoku = firebase_sudoku.getUserSolution(firebase_auth.getUID(), sudoku_id)
+user_sudoku = firebase_sudoku.getUserSolution(firebase_auth.getUID(), sudoku_id, is_multiplayer)
 input_map = {}  # map of NumberInput objects created in order to update firebase
 displayed_error = (-1, -1)
 
 progress_bar = None
 game_window = None
 
-is_multiplayer = True
-multiplayer_changes = False
+
 
 def refresh_handler(arg):
     global multiplayer_changes
@@ -50,9 +52,9 @@ def get_history_id() -> str:
 
 def checkChanges(instance, value):
     global user_sudoku, input_map
-    user_sudoku = firebase_sudoku.getUserSolution(get_history_id(), sudoku_id)
+    user_sudoku = firebase_sudoku.getUserSolution(get_history_id(), sudoku_id, is_multiplayer)
     i, j = findValInMap(input_map, instance)
-    firebase_sudoku.updateUserSolution(get_history_id(), sudoku_id, i, j, value)
+    firebase_sudoku.updateUserSolution(get_history_id(), sudoku_id, i, j, value, is_multiplayer)
 
     if value != "":
         ProgressBar.add(progress_bar)
@@ -60,7 +62,7 @@ def checkChanges(instance, value):
     else:
         ProgressBar.subtract(progress_bar)
         firebase_sudoku.update_progress_bar(get_history_id(), sudoku_id, ProgressBar.get_currect_value(progress_bar))
-    checkDone(get_history_id(), sudoku_id, sudoku)
+    checkDone(get_history_id(), sudoku_id, sudoku, is_multiplayer)
 
 
 class NumberLabel(Label):  # custom label for displaying numbers in sudoku
@@ -313,9 +315,9 @@ class GameWindow(Screen):
     def build(self):
         global sudoku_id, user_sudoku, sudoku
         uid = get_history_id()
-        user_sudoku = firebase_sudoku.getUserSolution(uid, sudoku_id)
+        user_sudoku = firebase_sudoku.getUserSolution(uid, sudoku_id, is_multiplayer)
         sudoku_id = levels.selected_sudoku
-        user_sudoku = firebase_sudoku.getUserSolution(get_history_id(), sudoku_id)
+        user_sudoku = firebase_sudoku.getUserSolution(get_history_id(), sudoku_id, is_multiplayer)
         sudoku = firebase_sudoku.getUnsolved(sudoku_id)
 
         self.board = self.ids.sudoku
@@ -416,7 +418,7 @@ class GameWindow(Screen):
 
     def displayErrorsDB(self):
         global displayed_error
-        errors = getErrorsDB(sudoku_id, firebase_sudoku.getUserSolution(get_history_id(), sudoku_id))
+        errors = getErrorsDB(sudoku_id, firebase_sudoku.getUserSolution(get_history_id(), sudoku_id, is_multiplayer))
         ind = 0
         if len(errors) > 1:
             ind = randint(0, len(errors) - 1)
@@ -427,7 +429,7 @@ class GameWindow(Screen):
 
     def displayErrorsCalc(self):
         global displayed_error
-        errors = getErrorsCalc(firebase_sudoku.getUserSolution(get_history_id(), sudoku_id))
+        errors = getErrorsCalc(firebase_sudoku.getUserSolution(get_history_id(), sudoku_id, is_multiplayer))
         ind = 0
         if len(errors) > 1:
             ind = randint(0, len(errors) - 1)
