@@ -240,6 +240,7 @@ class PopUpHints(FloatLayout):
                                      game_window.ids.counter.minute, game_window.ids.counter.second)
         game_window.clock.unschedule(game_window.update_label)
         game_window.refresh()
+
         self.window.dismiss()
 
     def select_text_row(self, instance, x):
@@ -311,6 +312,10 @@ class ProgressBar():
         return progress_bar.value
 
 
+class P(FloatLayout):
+    pass
+
+
 class GameWindow(Screen):
     def build(self):
         global sudoku_id, user_sudoku, sudoku
@@ -328,6 +333,11 @@ class GameWindow(Screen):
         # DataTable
         self.dt = DataTable()
         self.ids.table_id.add_widget(self.dt)
+
+        data_size = len(firebase_connection.firebase_ref.getRef().child('history').child(str(get_history_id())) \
+                        .child(str(sudoku_id)).child('hints').get())
+        self.ids.hints.clear_widgets()
+        self.ids.hints.add_widget(Label(text="hints left: " + str(max(0, 3-data_size)) + "/3"))
 
         # Progress bar
         global progress_bar
@@ -401,6 +411,10 @@ class GameWindow(Screen):
     def refresh(self):
         self.ids.table_id.remove_widget(self.dt)
         self.board.remove_widget(self.s)
+        data_size = len(firebase_connection.firebase_ref.getRef().child('history').child(str(get_history_id())) \
+                        .child(str(sudoku_id)).child('hints').get())
+        self.ids.hints.clear_widgets()
+        self.ids.hints.add_widget(Label(text="hints left: " + str(max(0, 3-data_size)) + "/3"))
         self.build()
 
     def reset_game(self):

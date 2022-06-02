@@ -93,8 +93,10 @@
                         radius: 200, 200, 200, 200
 
 
-            Label:
-                text: "Hint: left 3/3"
+            BoxLayout:
+                id: hints
+                Label:
+                    text: "Hints left: 3/3"
 
             BoxLayout:
                 id: table_id
@@ -206,6 +208,7 @@
 		pos_hint : {"x" : 0.4, "top" : 0.6}
 		opacity: 0.5
 
+
 <DataTable>:
     id: table_count
     RecycleView:
@@ -219,6 +222,8 @@
             size_hint_y: None
             height: self.minimum_height
             spacing: 5
+
+
 <CustomLabel@Label>:
     bcolor: (1,1,1,1)
     canvas.before:
@@ -227,6 +232,7 @@
         Rectangle:
             size: self.size
             pos: self.pos
+
 
 <PopUpPause>:
     size: root.width, root.height
@@ -252,6 +258,7 @@
         size_hint: 1, 0.2
 		pos_hint : {"x" : 0, "top" : 0.3}
         text: "Exit"
+
 
 <CustomDropDown>:
     Button:
