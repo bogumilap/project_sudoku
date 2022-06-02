@@ -16,6 +16,8 @@ selected_sudoku = 0
 
 class levelsWindow(Screen):
     def build(self):
+        self.ids.ranking.clear_widgets()
+
         ranking = firebase_ranking.getRanking()
         for i in range(5):
             pos = ranking[i]
