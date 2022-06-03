@@ -47,3 +47,7 @@ def signup(nick, email, password):
 
 def getUID():
     return uid
+
+
+def getCurrentNick():
+    return firebase_ref.getRef().child('users').child(uid).child('nick').get()

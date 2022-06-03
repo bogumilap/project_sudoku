@@ -72,8 +72,8 @@ sm = windowManager()
 
 # adding screens
 sm.add_widget(loginWindow(name='login'))
-sm.add_widget(levels.levelsWindow(name='levelsWindow'))
-sm.add_widget(levels.menuWindow(name='menuWindow'))
+sm.add_widget(levels.LevelsWindow(name='levelsWindow'))
+sm.add_widget(levels.MenuWindow(name='menuWindow'))
 sm.add_widget(board.GameWindow(name='GameWindow'))
 
 

@@ -8,6 +8,7 @@ from kivy.uix.screenmanager import Screen
 
 from firebase_connection import firebase_sudoku
 from firebase_connection import firebase_ranking
+from firebase_connection import firebase_auth
 kivy.require('2.1.0')
 
 level = 1
@@ -16,15 +17,19 @@ is_multiplayer = False
 is_clicked = False
 #  najpeirw jest levels, potem menu
 
-class levelsWindow(Screen):
+class LevelsWindow(Screen):
     def build(self):
         self.ids.ranking.clear_widgets()
 
         ranking = firebase_ranking.getRanking()
+        users_nick = firebase_auth.getCurrentNick()
         for i in range(5):
             pos = ranking[i]
             text = str(i+1) + ". " + pos[0] + "   " + str(pos[1])
-            self.ids.ranking.add_widget(Label(text=text, color='111111'))
+            color = '111111'
+            if users_nick == pos[0]:
+                color = '1c7ad9'
+            self.ids.ranking.add_widget(Label(text=text, color=color))
 
     def changeLevel(self, lvl):
         global level
@@ -44,7 +49,7 @@ class levelsWindow(Screen):
             self.ids.multiplayer.background_color = [1, 0, 0, 1]
 
 
-class menuWindow(Screen):
+class MenuWindow(Screen):
     def build(self):
         menu = firebase_sudoku.getSudokuWithLevel(level)
 
