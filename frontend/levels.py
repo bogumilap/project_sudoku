@@ -34,7 +34,6 @@ class levelsWindow(Screen):
     def multiplayer_game(self):
         global is_multiplayer
         is_multiplayer = not is_multiplayer
-        print(is_multiplayer)
 
     def multiplayer_color(self):
         global is_clicked

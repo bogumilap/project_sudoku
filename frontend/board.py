@@ -348,7 +348,6 @@ class GameWindow(Screen):
         self.time = Timer()
         self.start_timer()
 
-        print("Mu", is_multiplayer)
         if is_multiplayer:
             firebase_connection.firebase_ref.getRef().child('history').child('multiplayer').listen(refresh_handler)
             self.ids.pause.disabled = True
