@@ -93,8 +93,16 @@
                         radius: 200, 200, 200, 200
 
 
+            BoxLayout:
+                id: hints
+                Label:
+                    text: "Hints left: 3/3"
+
             Label:
-                text: "Hint: left 3/3"
+                size_hint_y: None
+                text_size: self.width, None
+                height: self.texture_size[1]
+                text: "aby wyświetlić swoje robocze cyfry, kliknij dwa razy na pole sudoku"
 
             BoxLayout:
                 id: table_id
@@ -206,6 +214,7 @@
 		pos_hint : {"x" : 0.4, "top" : 0.6}
 		opacity: 0.5
 
+
 <DataTable>:
     id: table_count
     RecycleView:
@@ -219,6 +228,8 @@
             size_hint_y: None
             height: self.minimum_height
             spacing: 5
+
+
 <CustomLabel@Label>:
     bcolor: (1,1,1,1)
     canvas.before:
@@ -227,6 +238,7 @@
         Rectangle:
             size: self.size
             pos: self.pos
+
 
 <PopUpPause>:
     size: root.width, root.height
@@ -252,6 +264,7 @@
         size_hint: 1, 0.2
 		pos_hint : {"x" : 0, "top" : 0.3}
         text: "Exit"
+
 
 <CustomDropDown>:
     Button:

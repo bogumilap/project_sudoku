@@ -1,4 +1,7 @@
 <levelsWindow>:
+    on_enter:
+        self.build()
+
     canvas.before:
         Color:
             rgba: 1, 1, 1, 1
@@ -6,44 +9,78 @@
             pos: self.pos
             size: self.size
 
-    Label:
-        text : "SELECT LEVEL:"
-        color: '111111'
-        bold : True
-        size_hint : 0.2, 0.1
-        pos_hint : {"x" : 0.3, "top" : 0.85}
+    GridLayout:
+        cols: 2
+        rows: 3
+        padding: 15
+        row_force_default: True
+        row_default_height: 225
+        size_hint_y: None
+        height: self.minimum_height
 
-    Button:
-        text : "EASY"
-        size_hint : 0.4, 0.1
-        pos_hint : {"x" : 0.3, "top" : 0.75}
-        on_release:
-            root.manager.transition.direction = "up"
-            root.changeLevel(1)
+        Label:
+            text: ''
+        Label:
+            text: ''
 
-    Button:
-        text : "MEDIUM"
-        size_hint : 0.4, 0.1
-        pos_hint : {"x" : 0.3, "top" : 0.60}
-        on_release:
-            root.manager.transition.direction = "up"
-            root.changeLevel(2)
+        GridLayout:
+            cols: 1
+            Label:
+                text : "SELECT LEVEL:"
+                color: '111111'
+                bold : True
+                size_hint : 0.2, 0.1
 
-    Button:
-        text : "HARD"
-        size_hint : 0.4, 0.1
-        pos_hint : {"x" : 0.3, "top" : 0.45}
-        on_release:
-            root.manager.transition.direction = "up"
-            root.changeLevel(3)
-    Button:
-        text : "MULTIPLAYER"
-        size_hint : 0.4, 0.1
-        pos_hint : {"x" : 0.1, "top" : 0.15}
-        on_release:
-            root.manager.transition.direction = "up"
-            root.multiplayer_game()
+            Button:
+                text : "EASY"
+                size_hint : 0.3, 0.05
+                on_release:
+                    root.manager.transition.direction = "up"
+                    root.changeLevel(1)
 
+            Button:
+                text : "MEDIUM"
+                size_hint : 0.3, 0.05
+                on_release:
+                    root.manager.transition.direction = "up"
+                    root.changeLevel(2)
+
+            Button:
+                text : "HARD"
+                size_hint : 0.3, 0.05
+                on_release:
+                    root.manager.transition.direction = "up"
+                    root.changeLevel(3)
+
+            Button:
+                id : multiplayer
+                text : "MULTIPLAYER"
+                size_hint : 0.4, 0.1
+                pos_hint : {"x" : 0.1, "top" : 0.15}
+                on_release:
+                    root.multiplayer_color()
+                    root.manager.transition.direction = "up"
+                    root.multiplayer_game()
+
+
+        GridLayout:
+            cols: 1
+            size_hint: 1, 0.5
+            Label:
+                text : "RANKING:"
+                color: '111111'
+                bold : True
+                size_hint : 0.2, 0.05
+            GridLayout:
+                valign: 'top'
+                cols: 1
+                id: ranking
+                size_hint: 1, 0.2
+
+        Label:
+            text: ''
+        Label:
+            text: ''
 
 <menuWindow>:
     on_enter:

@@ -25,3 +25,10 @@ def updateRanking(uid):
         }
         firebase_ref.getRef().child("top5").child(str(insert_index)).set(data)
 
+
+def getRanking():
+    ranking = firebase_ref.getRef().child("top5").get()
+    parsed = []
+    for user in ranking:
+        parsed.append([user.get('nick'), user.get('total_points')])
+    return parsed

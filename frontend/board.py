@@ -27,7 +27,7 @@ from kivy.uix.popup import Popup
 kivy.require('2.1.0')
 kv = Builder.load_file('./board.kv')
 
-is_multiplayer = True
+is_multiplayer = False
 multiplayer_changes = False
 
 sudoku_id = 0
@@ -40,7 +40,6 @@ progress_bar = None
 game_window = None
 
 
-
 def refresh_handler(arg):
     global multiplayer_changes
     multiplayer_changes = True
@@ -51,7 +50,7 @@ def get_history_id() -> str:
 
 
 def checkChanges(instance, value):
-    global user_sudoku, input_map
+    global user_sudoku
     user_sudoku = firebase_sudoku.getUserSolution(get_history_id(), sudoku_id, is_multiplayer)
     i, j = findValInMap(input_map, instance)
     firebase_sudoku.updateUserSolution(get_history_id(), sudoku_id, i, j, value, is_multiplayer)
@@ -62,6 +61,7 @@ def checkChanges(instance, value):
     else:
         ProgressBar.subtract(progress_bar)
         firebase_sudoku.update_progress_bar(get_history_id(), sudoku_id, ProgressBar.get_currect_value(progress_bar))
+
     checkDone(get_history_id(), sudoku_id, sudoku, is_multiplayer)
 
 
@@ -216,7 +216,7 @@ class PopUpHints(FloatLayout):
 
         btnCount = Button(text="SHOW", size_hint=(0.6, 0.2), pos_hint={"x": 0.2, "top": 0.3})
         self.show.add_widget(btnCount)
-        self.window = Popup(title="Show all possible number!", content=self.show, size_hint=(None, None),
+        self.window = Popup(title="Show all possible numbers!", content=self.show, size_hint=(None, None),
                             size=(300, 300))
         btnCount.bind(on_press=self.get_count)
         self.window.open()
@@ -240,6 +240,7 @@ class PopUpHints(FloatLayout):
                                      game_window.ids.counter.minute, game_window.ids.counter.second)
         game_window.clock.unschedule(game_window.update_label)
         game_window.refresh()
+
         self.window.dismiss()
 
     def select_text_row(self, instance, x):
@@ -311,9 +312,14 @@ class ProgressBar():
         return progress_bar.value
 
 
+class P(FloatLayout):
+    pass
+
+
 class GameWindow(Screen):
     def build(self):
-        global sudoku_id, user_sudoku, sudoku
+        global sudoku_id, user_sudoku, sudoku, is_multiplayer
+        is_multiplayer = levels.is_multiplayer
         uid = get_history_id()
         user_sudoku = firebase_sudoku.getUserSolution(uid, sudoku_id, is_multiplayer)
         sudoku_id = levels.selected_sudoku
@@ -329,6 +335,11 @@ class GameWindow(Screen):
         self.dt = DataTable()
         self.ids.table_id.add_widget(self.dt)
 
+        data_size = len(firebase_connection.firebase_ref.getRef().child('history').child(str(get_history_id())) \
+                        .child(str(sudoku_id)).child('hints').get())
+        self.ids.hints.clear_widgets()
+        self.ids.hints.add_widget(Label(text="hints left: " + str(max(0, 3-data_size)) + "/3"))
+
         # Progress bar
         global progress_bar
         progress_bar = self.ids.my_progress_bar
@@ -336,6 +347,8 @@ class GameWindow(Screen):
 
         self.time = Timer()
         self.start_timer()
+
+        print("Mu", is_multiplayer)
         if is_multiplayer:
             firebase_connection.firebase_ref.getRef().child('history').child('multiplayer').listen(refresh_handler)
             self.ids.pause.disabled = True
@@ -401,6 +414,10 @@ class GameWindow(Screen):
     def refresh(self):
         self.ids.table_id.remove_widget(self.dt)
         self.board.remove_widget(self.s)
+        data_size = len(firebase_connection.firebase_ref.getRef().child('history').child(str(get_history_id())) \
+                        .child(str(sudoku_id)).child('hints').get())
+        self.ids.hints.clear_widgets()
+        self.ids.hints.add_widget(Label(text="hints left: " + str(max(0, 3-data_size)) + "/3"))
         self.build()
 
     def reset_game(self):
