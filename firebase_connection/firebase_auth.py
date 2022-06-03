@@ -1,6 +1,3 @@
-import firebase_admin
-from firebase_admin import credentials
-from getpass import getpass
 from firebase_connection import firebase_insert
 
 import pyrebase
@@ -21,6 +18,7 @@ firebaseConfig = {
 firebase = pyrebase.initialize_app(firebaseConfig)
 auth = firebase.auth()
 uid = None
+
 
 # log in to account
 def login(email_, password_):

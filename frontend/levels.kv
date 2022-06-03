@@ -33,21 +33,18 @@
 
             Button:
                 text : "EASY"
-                size_hint : 0.3, 0.05
                 on_release:
                     root.manager.transition.direction = "up"
                     root.changeLevel(1)
 
             Button:
                 text : "MEDIUM"
-                size_hint : 0.3, 0.05
                 on_release:
                     root.manager.transition.direction = "up"
                     root.changeLevel(2)
 
             Button:
                 text : "HARD"
-                size_hint : 0.3, 0.05
                 on_release:
                     root.manager.transition.direction = "up"
                     root.changeLevel(3)
@@ -55,8 +52,6 @@
             Button:
                 id : multiplayer
                 text : "MULTIPLAYER"
-                size_hint : 0.4, 0.1
-                pos_hint : {"x" : 0.1, "top" : 0.15}
                 on_release:
                     root.multiplayer_color()
                     root.manager.transition.direction = "up"
