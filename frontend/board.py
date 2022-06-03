@@ -170,25 +170,32 @@ class CustomDropDown(DropDown):
 
 class PopUpHints(FloatLayout):
     def popGet(self):
-        self.show = PopUpHints()
+        if len(firebase_connection.firebase_ref.getRef().child('history').child(str(get_history_id())) \
+                        .child(str(sudoku_id)).child('hints').get()) < 3:
+            self.show = PopUpHints()
 
-        self.mainbutton_row = Button(text="Row", size_hint=(0.2, 0.1), pos_hint={"x": 0.4, "top": 0.8})
-        self.show.add_widget(self.mainbutton_row)
-        dropdown_row = CustomDropDown()
-        self.mainbutton_row.bind(on_release=dropdown_row.open)
-        dropdown_row.bind(on_select=self.select_text_row)
+            self.mainbutton_row = Button(text="Row", size_hint=(0.2, 0.1), pos_hint={"x": 0.4, "top": 0.8})
+            self.show.add_widget(self.mainbutton_row)
+            dropdown_row = CustomDropDown()
+            self.mainbutton_row.bind(on_release=dropdown_row.open)
+            dropdown_row.bind(on_select=self.select_text_row)
 
-        self.mainbutton_column = Button(text="Column", size_hint=(0.2, 0.1), pos_hint={"x": 0.4, "top": 0.5})
-        self.show.add_widget(self.mainbutton_column)
-        dropdown_column = CustomDropDown()
-        self.mainbutton_column.bind(on_release=dropdown_column.open)
-        dropdown_column.bind(on_select=self.select_text_column)
+            self.mainbutton_column = Button(text="Column", size_hint=(0.2, 0.1), pos_hint={"x": 0.4, "top": 0.5})
+            self.show.add_widget(self.mainbutton_column)
+            dropdown_column = CustomDropDown()
+            self.mainbutton_column.bind(on_release=dropdown_column.open)
+            dropdown_column.bind(on_select=self.select_text_column)
 
-        btn1 = Button(text="GET", size_hint=(0.6, 0.2), pos_hint={"x": 0.2, "top": 0.3})
-        self.show.add_widget(btn1)
-        self.window = Popup(title="Get the hint!", content=self.show, size_hint=(None, None), size=(300, 300))
-        btn1.bind(on_press=self.get_hint)
-        self.window.open()
+            btn1 = Button(text="GET", size_hint=(0.6, 0.2), pos_hint={"x": 0.2, "top": 0.3})
+            self.show.add_widget(btn1)
+            self.window = Popup(title="Get the hint!", content=self.show, size_hint=(None, None), size=(300, 300))
+            btn1.bind(on_press=self.get_hint)
+            self.window.open()
+        else:
+            self.show = PopUpHints()
+            self.window = Popup(title="caution!", content=Label(text="you already used all your hints!"), size_hint=(None, None), size=(300, 300))
+            self.window.open()
+
 
     def get_hint(self, obj):
         num = firebase_sudoku.get_hint(sudoku_id, get_history_id(), self.mainbutton_row.text,
@@ -200,26 +207,32 @@ class PopUpHints(FloatLayout):
         self.window.dismiss()
 
     def popCount(self):
-        self.show = PopUpHints()
+        if len(firebase_connection.firebase_ref.getRef().child('history').child(str(get_history_id())) \
+                        .child(str(sudoku_id)).child('hints').get()) < 3:
+            self.show = PopUpHints()
 
-        self.mainbutton_row = Button(text="Row", size_hint=(0.2, 0.1), pos_hint={"x": 0.4, "top": 0.8})
-        self.show.add_widget(self.mainbutton_row)
-        dropdown_row = CustomDropDown()
-        self.mainbutton_row.bind(on_release=dropdown_row.open)
-        dropdown_row.bind(on_select=self.select_text_row)
+            self.mainbutton_row = Button(text="Row", size_hint=(0.2, 0.1), pos_hint={"x": 0.4, "top": 0.8})
+            self.show.add_widget(self.mainbutton_row)
+            dropdown_row = CustomDropDown()
+            self.mainbutton_row.bind(on_release=dropdown_row.open)
+            dropdown_row.bind(on_select=self.select_text_row)
 
-        self.mainbutton_column = Button(text="Column", size_hint=(0.2, 0.1), pos_hint={"x": 0.4, "top": 0.5})
-        self.show.add_widget(self.mainbutton_column)
-        dropdown_column = CustomDropDown()
-        self.mainbutton_column.bind(on_release=dropdown_column.open)
-        dropdown_column.bind(on_select=self.select_text_column)
+            self.mainbutton_column = Button(text="Column", size_hint=(0.2, 0.1), pos_hint={"x": 0.4, "top": 0.5})
+            self.show.add_widget(self.mainbutton_column)
+            dropdown_column = CustomDropDown()
+            self.mainbutton_column.bind(on_release=dropdown_column.open)
+            dropdown_column.bind(on_select=self.select_text_column)
 
-        btnCount = Button(text="SHOW", size_hint=(0.6, 0.2), pos_hint={"x": 0.2, "top": 0.3})
-        self.show.add_widget(btnCount)
-        self.window = Popup(title="Show all possible numbers!", content=self.show, size_hint=(None, None),
-                            size=(300, 300))
-        btnCount.bind(on_press=self.get_count)
-        self.window.open()
+            btnCount = Button(text="SHOW", size_hint=(0.6, 0.2), pos_hint={"x": 0.2, "top": 0.3})
+            self.show.add_widget(btnCount)
+            self.window = Popup(title="Show all possible numbers!", content=self.show, size_hint=(None, None),
+                                size=(300, 300))
+            btnCount.bind(on_press=self.get_count)
+            self.window.open()
+        else:
+            self.show = PopUpHints()
+            self.window = Popup(title="caution!", content=Label(text="you already used all your hints!"), size_hint=(None, None), size=(300, 300))
+            self.window.open()
 
     def get_count(self, obj):
         res = firebase_sudoku.get_count(sudoku_id, get_history_id(), self.mainbutton_row.text,
@@ -390,6 +403,8 @@ class GameWindow(Screen):
         self.ids.counter.text = h + ':' + m + ':' + s
         if s[1] == '0':
             self.check_changes("")
+        self.time.update_time(get_history_id(), sudoku_id, self.ids.counter.hour, self.ids.counter.minute,
+                              self.ids.counter.second)
 
     def get_popup(self, t):
         self.popup_elem = PopUpHints()
