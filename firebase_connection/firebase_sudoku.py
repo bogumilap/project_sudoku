@@ -29,7 +29,7 @@ def getUserSolution(uid, sudoku_id, is_multiplayer):
             'used_corrections': 0,
             'progress_bar': 0.0,
             'hints': "",
-            'possible': [[[0 for _ in range(9)] for _ in range(9)] for _ in range(9)]
+            'possible': [[[0] for _ in range(9)] for _ in range(9)]
         }
         history.set(data)
         no_played = firebase_ref.getRef().child('users').child(uid).child('no_played').get()  # update user statistics
@@ -41,7 +41,6 @@ def getUserSolution(uid, sudoku_id, is_multiplayer):
 
 def updateUserSolution(uid, sudoku_id, x, y, val, is_multiplayer):  # insert number to user's game history
     sudoku = getUserSolution(uid, sudoku_id, is_multiplayer)
-    print(sudoku[x][y])
     if sudoku[x][y] == "" or sudoku[x][y] == 0:   # update points
         points = firebase_ref.getRef().child('history').child(str(uid)).child(str(sudoku_id)).child("game_points")
         points.set(points.get() + 50)
@@ -74,7 +73,7 @@ def finishGame(uid, sudoku_id):  # update user's statistics and total points
     game_points = game_data.child('game_points').get()
     gained = game_points * getLevel(sudoku_id) * 10 / seconds
     used = game_data.child("used_corrections").get() * 10 + game_data.child("used_hints").get() * 15
-    user_data.child('total_points').set(total_points + gained - used)
+    user_data.child('total_points').set(round(total_points + gained - used))
 
     updateRanking(uid)
 
@@ -97,25 +96,6 @@ def get_hint(id, history_id, square, field):
     num = firebase_ref.getRef().child('solved_sudoku').child(str(id)).child('numbers').child(square).child(field).get()
     firebase_ref.getRef().child('history').child(str(history_id)).child(str(id)).child('numbers').child(square).child(field).set(num)
     return num
-
-
-def check_column_range(column_num):
-    column_range_begin = None
-    column_range_end = None
-
-    if 0 <= column_num <= 2:
-        column_range_begin = 0
-        column_range_end = 3
-    elif 3 <= column_num <= 5:
-        column_range_begin = 3
-        column_range_end = 6
-    elif 6 <= column_num <= 8:
-        column_range_begin = 6
-        column_range_end = 9
-    else:
-        print("Incorrect column num")
-
-    return column_range_begin, column_range_end
 
 
 def get_count(id, history_id, row_arg, column_arg):
@@ -142,28 +122,10 @@ def get_count(id, history_id, row_arg, column_arg):
                 row[solved_row_num] = True
 
     # box
-    row_range_begin = None
-    column_range_begin = None
-    row_range_end = None
-    column_range_end = None
-
-    if 0 <= int(row_arg) <= 2:
-        row_range_begin = 0
-        row_range_end = 3
-
-        column_range_begin, column_range_end = check_column_range(int(column_arg))
-
-    elif 3 <= int(row_arg) <= 5:
-        row_range_begin = 3
-        row_range_end = 6
-
-        column_range_begin, column_range_end = check_column_range(int(column_arg))
-
-    elif 6 <= int(row_arg) <= 8:
-        row_range_begin = 6
-        row_range_end = 9
-
-        column_range_begin, column_range_end = check_column_range(int(column_arg))
+    row_range_begin = int(row_arg) // 3
+    row_range_end = row_range_begin + 3
+    column_range_begin = int(column_arg) // 3
+    column_range_end = column_range_begin + 3
 
     for i in range(row_range_begin, row_range_end):
         for j in range(column_range_begin, column_range_end):
@@ -177,7 +139,7 @@ def get_count(id, history_id, row_arg, column_arg):
 
     res = []
     for i in range(1, 10):
-        if row[i] == False and column[i] == False and box[i] == False:
+        if not row[i] and not column[i] and not box[i]:
             res.append(i)
 
     return res
