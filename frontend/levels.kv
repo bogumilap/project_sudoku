@@ -36,7 +36,13 @@
         on_release:
             root.manager.transition.direction = "up"
             root.changeLevel(3)
-
+    Button:
+        text : "MULTIPLAYER"
+        size_hint : 0.4, 0.1
+        pos_hint : {"x" : 0.1, "top" : 0.15}
+        on_release:
+            root.manager.transition.direction = "up"
+            root.multiplayer_game()
 
 
 <menuWindow>:

@@ -17,7 +17,8 @@ class levelsWindow(Screen):
         global level
         level = lvl
         App.get_running_app().root.current = "menuWindow"
-
+    def multiplayer_game(self):
+        print("elo")
 
 class menuWindow(Screen):
     def build(self):
