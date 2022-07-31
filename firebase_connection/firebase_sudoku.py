@@ -1,24 +1,24 @@
 from firebase_connection import firebase_ref
-from firebase_connection.firebase_ranking import updateRanking
+from firebase_connection.firebase_ranking import update_ranking
 
 
-def getUnsolved(id):
-    return firebase_ref.getRef().child('unsolved_sudoku').child(str(id)).child("numbers").get()
+def get_unsolved(id):
+    return firebase_ref.get_db_reference().child('unsolved_sudoku').child(str(id)).child("numbers").get()
 
 
-def getSolved(id):
-    return firebase_ref.getRef().child('solved_sudoku').child(str(id)).child("numbers").get()
+def get_solved(id):
+    return firebase_ref.get_db_reference().child('solved_sudoku').child(str(id)).child("numbers").get()
 
 
-def getLevel(id):
-    return firebase_ref.getRef().child('solved_sudoku').child(str(id)).child("level").get()
+def get_level(id):
+    return firebase_ref.get_db_reference().child('solved_sudoku').child(str(id)).child("level").get()
 
 
-def getUserSolution(uid, sudoku_id, is_multiplayer):
+def get_user_solution(uid, sudoku_id, is_multiplayer):
     if uid is None:
         return
 
-    history = firebase_ref.getRef().child('history').child(str(uid)).child(str(sudoku_id))
+    history = firebase_ref.get_db_reference().child('history').child(str(uid)).child(str(sudoku_id))
 
     if history.get() is None:  # game needs to be added to user's game history
         data = {
@@ -32,37 +32,37 @@ def getUserSolution(uid, sudoku_id, is_multiplayer):
             'possible': [[[0] for _ in range(9)] for _ in range(9)]
         }
         history.set(data)
-        no_played = firebase_ref.getRef().child('users').child(uid).child('no_played').get()  # update user statistics
+        no_played = firebase_ref.get_db_reference().child('users').child(uid).child('no_played').get()  # update user statistics
         if not is_multiplayer:
-            firebase_ref.getRef().child('users').child(uid).child('no_played').set(no_played + 1)
+            firebase_ref.get_db_reference().child('users').child(uid).child('no_played').set(no_played + 1)
 
     return history.child('numbers').get()
 
 
-def updateUserSolution(uid, sudoku_id, x, y, val, is_multiplayer):  # insert number to user's game history
-    sudoku = getUserSolution(uid, sudoku_id, is_multiplayer)
-    if sudoku[x][y] == "" or sudoku[x][y] == 0:   # update points
-        points = firebase_ref.getRef().child('history').child(str(uid)).child(str(sudoku_id)).child("game_points")
+def update_user_solution(uid, sudoku_id, x, y, val, is_multiplayer):  # insert number to user's game history
+    sudoku = get_user_solution(uid, sudoku_id, is_multiplayer)
+    if not sudoku[x][y]:   # update points
+        points = firebase_ref.get_db_reference().child('history').child(str(uid)).child(str(sudoku_id)).child("game_points")
         points.set(points.get() + 50)
     sudoku[x][y] = val
-    return firebase_ref.getRef().child('history').child(str(uid)).child(str(sudoku_id)).child("numbers").set(sudoku)
+    return firebase_ref.get_db_reference().child('history').child(str(uid)).child(str(sudoku_id)).child("numbers").set(sudoku)
 
 
-def getUserPossible(uid, sudoku_id, x, y):
-    result = firebase_ref.getRef().child("history").child(uid).child(str(sudoku_id)).child("possible").child(str(x)).child(str(y)).get()
+def get_users_possible(uid, sudoku_id, x, y):
+    result = firebase_ref.get_db_reference().child("history").child(uid).child(str(sudoku_id)).child("possible").child(str(x)).child(str(y)).get()
     if result.count(0) > 0:
         result.remove(0)
     return str(result)[1:len(str(result))-1]
 
 
-def updateUserPossible(uid, sudoku_id, x, y, vals):
+def update_users_possible(uid, sudoku_id, x, y, vals):
     v = vals.split(", ")
-    firebase_ref.getRef().child("history").child(uid).child(str(sudoku_id)).child("possible").child(str(x)).child(str(y)).set(v)
+    firebase_ref.get_db_reference().child("history").child(uid).child(str(sudoku_id)).child("possible").child(str(x)).child(str(y)).set(v)
 
 
-def finishGame(uid, sudoku_id):  # update user's statistics and total points
-    user_data = firebase_ref.getRef().child('users').child(str(uid))
-    game_data = firebase_ref.getRef().child('history').child(str(uid)).child(str(sudoku_id))
+def finish_game(uid, sudoku_id):  # update user's statistics and total points
+    user_data = firebase_ref.get_db_reference().child('users').child(str(uid))
+    game_data = firebase_ref.get_db_reference().child('history').child(str(uid)).child(str(sudoku_id))
 
     no_won = user_data.child('no_won')
     no_won.set(no_won.get() + 1)
@@ -71,19 +71,19 @@ def finishGame(uid, sudoku_id):  # update user's statistics and total points
     time = game_data.child("time").get()
     seconds = time[0] * 3600 + time[1] * 60 + time[2]
     game_points = game_data.child('game_points').get()
-    gained = game_points * getLevel(sudoku_id) * 10 / seconds
+    gained = game_points * get_level(sudoku_id) * 10 / seconds
     used = game_data.child("used_corrections").get() * 10 + game_data.child("used_hints").get() * 15
     user_data.child('total_points').set(round(total_points + gained - used))
 
-    updateRanking(uid)
+    update_ranking(uid)
 
 
-def getAllSolvedSudoku():
-    return firebase_ref.getRef().child('solved_sudoku').get()
+def get_all_solved_sudoku():
+    return firebase_ref.get_db_reference().child('solved_sudoku').get()
 
 
-def getSudokuWithLevel(level):
-    all_sudoku = getAllSolvedSudoku()
+def get_sudoku_with_level(level):
+    all_sudoku = get_all_solved_sudoku()
     lvl_sudoku = []
     for i in range(len(all_sudoku)):
         if all_sudoku[i]['level'] == level:
@@ -93,15 +93,15 @@ def getSudokuWithLevel(level):
 
 def get_hint(id, history_id, square, field):
     print(square, field)
-    num = firebase_ref.getRef().child('solved_sudoku').child(str(id)).child('numbers').child(square).child(field).get()
-    firebase_ref.getRef().child('history').child(str(history_id)).child(str(id)).child('numbers').child(square).child(field).set(num)
+    num = firebase_ref.get_db_reference().child('solved_sudoku').child(str(id)).child('numbers').child(square).child(field).get()
+    firebase_ref.get_db_reference().child('history').child(str(history_id)).child(str(id)).child('numbers').child(square).child(field).set(num)
     return num
 
 
 def get_count(id, history_id, row_arg, column_arg):
     is_taken = [False for _ in range(9)]
-    users_numbers = firebase_ref.getRef().child('history').child(str(history_id)).child(str(id)).child('numbers')
-    correct_numbers = firebase_ref.getRef().child('solved_sudoku').child(str(id)).child('numbers')
+    users_numbers = firebase_ref.get_db_reference().child('history').child(str(history_id)).child(str(id)).child('numbers')
+    correct_numbers = firebase_ref.get_db_reference().child('solved_sudoku').child(str(id)).child('numbers')
 
     # column and row
     for i in range(9):
@@ -134,19 +134,19 @@ def get_count(id, history_id, row_arg, column_arg):
 
 
 def update_progress_bar(uid, sudoku_id, value):
-    firebase_ref.getRef().child('history').child(str(uid)).child(str(sudoku_id)).child('progress_bar').set(value)
+    firebase_ref.get_db_reference().child('history').child(str(uid)).child(str(sudoku_id)).child('progress_bar').set(value)
 
 
 def reset_game(uid, sudoku_id):
-    unsolved_sudoku = firebase_ref.getRef().child('unsolved_sudoku').child(str(sudoku_id)).get()
-    firebase_ref.getRef().child('history').child(str(uid)).child(str(sudoku_id)).set(unsolved_sudoku)
-    firebase_ref.getRef().child('history').child(str(uid)).child(str(sudoku_id)).child('hints').set("")
-    firebase_ref.getRef().child('history').child(str(uid)).child(str(sudoku_id)).child('game_points').set(0)
-    firebase_ref.getRef().child('history').child(str(uid)).child(str(sudoku_id)).child('progress_bar').set(0)
-    firebase_ref.getRef().child('history').child(str(uid)).child(str(sudoku_id)).child('time').child(str(0)).set(0)
-    firebase_ref.getRef().child('history').child(str(uid)).child(str(sudoku_id)).child('time').child(str(1)).set(0)
-    firebase_ref.getRef().child('history').child(str(uid)).child(str(sudoku_id)).child('time').child(str(2)).set(0)
-    firebase_ref.getRef().child('history').child(str(uid)).child(str(sudoku_id)).child('used_corrections').set(0)
-    firebase_ref.getRef().child('history').child(str(uid)).child(str(sudoku_id)).child('used_hints').set(0)
+    unsolved_sudoku = firebase_ref.get_db_reference().child('unsolved_sudoku').child(str(sudoku_id)).get()
+    firebase_ref.get_db_reference().child('history').child(str(uid)).child(str(sudoku_id)).set(unsolved_sudoku)
+    firebase_ref.get_db_reference().child('history').child(str(uid)).child(str(sudoku_id)).child('hints').set("")
+    firebase_ref.get_db_reference().child('history').child(str(uid)).child(str(sudoku_id)).child('game_points').set(0)
+    firebase_ref.get_db_reference().child('history').child(str(uid)).child(str(sudoku_id)).child('progress_bar').set(0)
+    firebase_ref.get_db_reference().child('history').child(str(uid)).child(str(sudoku_id)).child('time').child(str(0)).set(0)
+    firebase_ref.get_db_reference().child('history').child(str(uid)).child(str(sudoku_id)).child('time').child(str(1)).set(0)
+    firebase_ref.get_db_reference().child('history').child(str(uid)).child(str(sudoku_id)).child('time').child(str(2)).set(0)
+    firebase_ref.get_db_reference().child('history').child(str(uid)).child(str(sudoku_id)).child('used_corrections').set(0)
+    firebase_ref.get_db_reference().child('history').child(str(uid)).child(str(sudoku_id)).child('used_hints').set(0)
 
 

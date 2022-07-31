@@ -21,8 +21,8 @@ class LevelsWindow(Screen):
     def build(self):
         self.ids.ranking.clear_widgets()
 
-        ranking = firebase_ranking.getRanking()
-        users_nick = firebase_auth.getCurrentNick()
+        ranking = firebase_ranking.get_ranking()
+        users_nick = firebase_auth.get_current_nick()
         for i in range(5):
             pos = ranking[i]
             text = str(i+1) + ". " + pos[0] + "   " + str(pos[1])
@@ -31,7 +31,7 @@ class LevelsWindow(Screen):
                 color = '1c7ad9'
             self.ids.ranking.add_widget(Label(text=text, color=color))
 
-    def changeLevel(self, lvl):
+    def change_level(self, lvl):
         global level
         level = lvl
         App.get_running_app().root.current = "menuWindow"
@@ -51,7 +51,7 @@ class LevelsWindow(Screen):
 
 class MenuWindow(Screen):
     def build(self):
-        menu = firebase_sudoku.getSudokuWithLevel(level)
+        menu = firebase_sudoku.get_sudoku_with_level(level)
 
         grid = GridLayout(rows=7, row_force_default=True, row_default_height=100, cols=7, col_force_default=True,
                           col_default_width=100, spacing=(3,3), pos_hint={"top": 0.87})
@@ -68,7 +68,7 @@ class MenuWindow(Screen):
 
 def showSudoku(arg):
     global selected_sudoku
-    selected_sudoku = firebase_sudoku.getSudokuWithLevel(level)[eval(arg.text[7:])-1]
+    selected_sudoku = firebase_sudoku.get_sudoku_with_level(level)[eval(arg.text[7:]) - 1]
     App.get_running_app().root.current = "GameWindow"
 
 

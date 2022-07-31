@@ -36,18 +36,18 @@ def signup(nick, email, password):
     global uid
     try:
         user = auth.create_user_with_email_and_password(email, password)
-        firebase_insert.addUser(user.get('localId'), nick, email)  # creating position in 'users' collection in db
+        firebase_insert.add_user(user.get('localId'), nick, email)  # creating position in 'users' collection in db
         print(user.get('localId'))
-        firebase_ref.getRef().child('history').push(user.get('localId'))  # creating document for user's history of play
+        firebase_ref.get_db_reference().child('history').push(user.get('localId'))  # creating document for user's history of play
         uid = user.get('localId')
         return user.get('localId')
     except HTTPError:
         return -1
 
 
-def getUID():
+def get_uid():
     return uid
 
 
-def getCurrentNick():
-    return firebase_ref.getRef().child('users').child(uid).child('nick').get()
+def get_current_nick():
+    return firebase_ref.get_db_reference().child('users').child(uid).child('nick').get()
