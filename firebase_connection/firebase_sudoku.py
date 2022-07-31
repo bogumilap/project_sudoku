@@ -99,49 +99,37 @@ def get_hint(id, history_id, square, field):
 
 
 def get_count(id, history_id, row_arg, column_arg):
-    column = [False] * 10
-    row = [False] * 10
-    box = [False] * 10
+    is_taken = [False for _ in range(9)]
+    users_numbers = firebase_ref.getRef().child('history').child(str(history_id)).child(str(id)).child('numbers')
+    correct_numbers = firebase_ref.getRef().child('solved_sudoku').child(str(id)).child('numbers')
 
     # column and row
     for i in range(9):
-        column_num = firebase_ref.getRef().child('history').child(str(history_id)).child(str(id)).child(
-            'numbers').child(str(i)).child(str(column_arg)).get()
-        row_num = firebase_ref.getRef().child('history').child(str(history_id)).child(str(id)).child('numbers').child(
-            row_arg).child(str(i)).get()
-        if column_num != "":
-            solved_column_num = firebase_ref.getRef().child('solved_sudoku').child(str(id)).child('numbers').child(
-                str(i)).child(column_arg).get()
-            if (column_num != 0 and int(column_num) == solved_column_num) or column_num == 0:
-                column[solved_column_num] = True
+        column_num = users_numbers.child(str(i)).child(str(column_arg)).get()
+        row_num = users_numbers.child(row_arg).child(str(i)).get()
+        if column_num:
+            solved_column_num = correct_numbers.child(str(i)).child(column_arg).get()
+            if int(column_num) == solved_column_num:
+                is_taken[solved_column_num-1] = True
 
-        if row_num != "":
-            solved_row_num = firebase_ref.getRef().child('solved_sudoku').child(str(id)).child('numbers').child(
-                row_arg).child(str(i)).get()
-            if (row_num != 0 and int(row_num) == solved_row_num) or row_num == 0:
-                row[solved_row_num] = True
+        if row_num:
+            solved_row_num = correct_numbers.child(row_arg).child(str(i)).get()
+            if int(row_num) == solved_row_num:
+                is_taken[solved_row_num-1] = True
 
     # box
-    row_range_begin = int(row_arg) // 3
+    row_range_begin = 3 * (int(row_arg) // 3)
     row_range_end = row_range_begin + 3
-    column_range_begin = int(column_arg) // 3
+    column_range_begin = 3 * (int(column_arg) // 3)
     column_range_end = column_range_begin + 3
-
     for i in range(row_range_begin, row_range_end):
         for j in range(column_range_begin, column_range_end):
-            box_num = firebase_ref.getRef().child('history').child(str(history_id)).child(str(id)).child(
-                'numbers').child(str(i)).child(str(j)).get()
-            if box_num != "":
-                solved_box_num = firebase_ref.getRef().child('solved_sudoku').child(str(id)).child(
-                    'numbers').child(str(i)).child(str(j)).get()
-                if (box_num != 0 and int(box_num) == solved_box_num) or box_num == 0:
-                    box[solved_box_num] = True
+            box_num = users_numbers.child(str(i)).child(str(j)).get()
+            solved_box_num = correct_numbers.child(str(i)).child(str(j)).get()
+            if box_num and int(box_num) == solved_box_num:
+                is_taken[solved_box_num-1] = True
 
-    res = []
-    for i in range(1, 10):
-        if not row[i] and not column[i] and not box[i]:
-            res.append(i)
-
+    res = [i+1 for i in range(9) if not is_taken[i]]
     return res
 
 
